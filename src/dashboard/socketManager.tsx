@@ -19,10 +19,11 @@ class SocketManager {
 
   connect(): Socket {
     this.connectionCount++;
-    
+
     if (!this.socket || this.socket.disconnected) {
       console.log('SocketManager: Creating new socket connection');
-      this.socket = io( "https://backend-prod-03dl.onrender.com", {
+      const wsUrl = process.env.REACT_APP_WS_URL || process.env.REACT_APP_API_URL || "http://localhost:3000";
+      this.socket = io(wsUrl, {
         transports: ["websocket"],
         withCredentials: true,
         reconnection: true,
