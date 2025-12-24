@@ -75,6 +75,9 @@ const Alerts: React.FC<AlertsProps> = ({ tournament, round, match, matchData }) 
   const [previousDataHash, setPreviousDataHash] = useState<string>('');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alertIdRef = useRef<number>(0);
+  const [displayedRank, setDisplayedRank] = useState<string>('');
+  const [displayedKills, setDisplayedKills] = useState<string>('');
+  const [displayedEliminated, setDisplayedEliminated] = useState<string>('');
 
   // Create a simple hash of the data for comparison
   const createDataHash = (data: any): string => {
@@ -165,7 +168,7 @@ const Alerts: React.FC<AlertsProps> = ({ tournament, round, match, matchData }) 
                         setShowAlert(false);
                         setCurrentAlertTeam(null);
                         timeoutRef.current = null;
-                      }, 5000);
+                      }, 6000);
                       break; // Only show one alert at a time
                     } else {
                       console.log('Alerts: Team already shown:', team.teamTag, '- skipping');
@@ -232,7 +235,7 @@ const Alerts: React.FC<AlertsProps> = ({ tournament, round, match, matchData }) 
                   setShowAlert(false);
                   setCurrentAlertTeam(null);
                   timeoutRef.current = null;
-                }, 5000);
+                }, 6000);
               } else {
                 console.log('Alerts: Team already shown:', updatedTeam.teamTag, '- skipping');
               }
@@ -289,7 +292,7 @@ const Alerts: React.FC<AlertsProps> = ({ tournament, round, match, matchData }) 
                   setShowAlert(false);
                   setCurrentAlertTeam(null);
                   timeoutRef.current = null;
-                }, 5000);
+                }, 6000);
               } else {
                 console.log('Alerts: Team already shown:', updatedTeam.teamTag, '- skipping');
               }
@@ -442,7 +445,6 @@ const Alerts: React.FC<AlertsProps> = ({ tournament, round, match, matchData }) 
     }
   }, [matchData, matchDataId]);
 
-
   // Sort teams by points first, then by kills - recalculated on every localMatchData change
   const sortedTeams = useMemo(() => {
     if (!localMatchData) return [];
@@ -466,13 +468,42 @@ const Alerts: React.FC<AlertsProps> = ({ tournament, round, match, matchData }) 
       });
   }, [localMatchData, lastUpdateTime]);
 
-  if (!localMatchData) {
-    return null;
-  }
+  // Typing animation effect
+  useEffect(() => {
+    const alertTeam = currentAlertTeam ? sortedTeams.find(t => t._id === currentAlertTeam._id) : null;
+    if (showAlert && alertTeam) {
+      const rankText = `#${alertTeam.teamRank}`;
+      const killsText = `${alertTeam.totalKills}`;
+      const elimText = 'ELIMINATED';
+
+      // Type rank
+      for (let i = 0; i <= rankText.length; i++) {
+        setTimeout(() => setDisplayedRank(rankText.slice(0, i)), i * 100);
+      }
+
+      // Type kills
+      for (let i = 0; i <= killsText.length; i++) {
+        setTimeout(() => setDisplayedKills(killsText.slice(0, i)), i * 100);
+      }
+
+      // Type eliminated
+      for (let i = 0; i <= elimText.length; i++) {
+        setTimeout(() => setDisplayedEliminated(elimText.slice(0, i)), i * 100);
+      }
+    } else {
+      setDisplayedRank('');
+      setDisplayedKills('');
+      setDisplayedEliminated('');
+    }
+  }, [showAlert, currentAlertTeam, sortedTeams]);
 
   // Alerts component UI
   const alertPlayers = currentAlertTeam ? currentAlertTeam.players.filter(p => p.bHasDied) : [];
-  const alertTeam = currentAlertTeam ? sortedTeams.find(t => t._id === currentAlertTeam._id) : null;
+  const alertTeam = useMemo(() => currentAlertTeam ? sortedTeams.find(t => t._id === currentAlertTeam._id) : null, [currentAlertTeam, sortedTeams]);
+
+  if (!localMatchData) {
+    return null;
+  }
   console.log('Alerts: Rendering with showAlert:', showAlert, 'currentAlertTeam:', currentAlertTeam?.teamTag, 'alertPlayers:', alertPlayers.map(p => p.playerName));
 return (
   <AnimatePresence mode="wait">
@@ -485,111 +516,27 @@ return (
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-        <svg
-          width="1920"
-          height="1080"
-          viewBox="0 0 3840 2160"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-        >
-          <defs>
-            <linearGradient id="paint1_linear_2006_2" x1="1646" y1="570" x2="2395" y2="588">
-              <stop stopColor={tournament.primaryColor || '#E01515'} />
-              <stop offset="1" stopColor={tournament.secondaryColor || '#620505'} />
-            </linearGradient>
-          </defs>
+        <svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="alertGradient" x1="0" y1="0" x2="1920" y2="0">
+    <stop stopColor={tournament.primaryColor || '#E01515'} />
+    <stop offset="1" stopColor={tournament.secondaryColor || '#620505'} />
+  </linearGradient>
+</defs>
+<path d="M689 236H1176C1206.38 236 1231 260.624 1231 291V475H689V236Z" fill="#f0f0f0"/>
+<rect x="697" y="354" width="515" height="3" fill="black"/>
+<image href={alertTeam?.teamLogo} width="150" height="150" x="857" y="220"/>
 
-          {/* STEP 1 — BLACK BOX */}
-          <motion.rect
-            x="1304"
-            y="461"
-            width="1187"
-            height="275"
-            fill="#000"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            exit={{ scaleX: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            style={{ originX: 0.5 }}
-          />
+       <text  fontFamily='AGENCYB' x="717" y="350" fill='url(#alertGradient)' fontSize={118}>{displayedRank}</text>
+       <text  fontFamily='AGENCYB' x="995" y="350" fill='black' fontSize={118}>{displayedKills}</text>
+         <text fontFamily='AGENCYB' x="1080" y="350" fill='black' fontSize={68}>ELIMS</text>
+       <text  fontFamily='AGENCYB' x="727" y="460" fill='url(#alertGradient)' fontSize={118}>{displayedEliminated}
 
-          {/* TEAM LOGO */}
-          {alertTeam && (
-            <image
-              x="1016"
-              y="460"
-              width="896"
-              height="275"
-              xlinkHref={alertTeam.teamLogo}
-            />
-          )}
+      
+       </text>
 
-          {/* STEP 2 — PURPLE BOX */}
-          <motion.g
-            initial={{ x: 400, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 400, opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.4 }}
-          >
-            <path
-              d="M1593 461L2491 461L2482 702.5L2452.5 736H1593V461Z"
-              fill="url(#paint1_linear_2006_2)"
-            />
 
-            {alertTeam && (
-              <text
-                x="2015"
-                y="668"
-                fill="white"
-                fontFamily="Bebas"
-                fontSize="200"
-                fontWeight="500"
-              >
-                {alertTeam.teamTag}
-              </text>
-            )}
-          </motion.g>
-
-          {/* STEP 3 — GOLD BOX */}
-          <motion.g
-            initial={{ y: 200, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 200, opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.9 }}
-          >
-            <path
-              d="M2491 461V367L1632.5 371L1595 406L1595 461H2491Z"
-              fill="#FFD000"
-            />
-
-            {alertTeam && (
-              <text
-                x="1725"
-                y="443"
-                fill="black"
-                fontFamily="payBack"
-                fontSize="84"
-              >
-                {alertTeam.totalKills} ELIMINATIONS
-              </text>
-            )}
-          </motion.g>
-
-          {/* RANK TEXT */}
-          {alertTeam && (
-            <text
-              x="1675"
-              y="668"
-              fill="white"
-              fontFamily="Bebas"
-              fontSize="200"
-              fontWeight="500"
-            >
-              #{alertTeam.teamRank}
-            </text>
-          )}
-        </svg>
+</svg>
       </motion.div>
     )}
   </AnimatePresence>

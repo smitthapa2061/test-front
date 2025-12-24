@@ -69,14 +69,14 @@ function Lower({ tournament, round, match }: LowerProps) {
   fill="url(#goldBarGradient)"
 />
 <image
-  href="https://res.cloudinary.com/dqckienxj/image/upload/v1765725849/save1_gh6ofa.png"
+  href="/lines.png"
   x="0"
-  y="880"
-  width="600"
+  y="890"
+  width="750"
   height="250"
   preserveAspectRatio="xMidYMid slice"
   clipPath="url(#blackBoxClip)"
-  opacity="0.1"
+  opacity="0.06"
 />
 
 
@@ -138,13 +138,14 @@ function Lower({ tournament, round, match }: LowerProps) {
 <text
   x="390"
   y="1045"      // slightly below the white line
-  fontFamily="Awaking"
-  fontSize="40"
+  fontFamily="Supermolot"
+  fontSize="30"
+  fontWeight="900"
   fill="white"
   textAnchor="middle"
   dominantBaseline="middle"
 >
-  {match?.map?.toUpperCase() || ""}
+  M{match?.matchNo || ""} - {match?.map?.toUpperCase() || ""}
 </text>
 
         </g>
@@ -161,15 +162,31 @@ function Lower({ tournament, round, match }: LowerProps) {
   <stop offset="50%" stopColor="#FFA500" />
   <stop offset="100%" stopColor="#FFD700" />
 </linearGradient>
-          <linearGradient id="darkGradient" x1="215" y1="906" x2="415" y2="1070">
-            <stop stopColor="#2B2B2B" />
-            <stop offset="1" stopColor="#000000" />
-          </linearGradient>
+        <linearGradient
+  id="darkGradient"
+  x1="0"
+  y1="0"
+  x2="1"
+  y2="0"
+  gradientUnits="objectBoundingBox"
+  gradientTransform="rotate(45)"
+>
+  <stop offset="0" stopColor="#2B2B2B" />
+  <stop offset="1" stopColor="#000000" />
+</linearGradient>
 
-          <linearGradient id="accentGradient" x1="130" y1="956" x2="200" y2="1038">
-            <stop stopColor={tournament.primaryColor || "#FF0000"} />
-            <stop offset="1" stopColor={tournament.secondaryColor || "#990000"} />
-          </linearGradient>
+       <linearGradient
+  id="accentGradient"
+  x1="0"
+  y1="0"
+  x2="1"
+  y2="0"
+  gradientUnits="objectBoundingBox"
+  gradientTransform="rotate(45)"
+>
+  <stop stopColor={tournament.primaryColor || "#FF0000"} />
+  <stop offset="1" stopColor={tournament.secondaryColor || "#990000"} />
+</linearGradient>
 
           <clipPath id="clip0">
             <rect width="1920" height="1080" />

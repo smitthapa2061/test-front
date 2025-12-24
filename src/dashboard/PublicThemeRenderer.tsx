@@ -81,6 +81,33 @@ import Intro3 from '../Themes/Theme3/on-screen/intro.tsx'
 import MapPreview3 from '../Themes/Theme3/off-screen/mapPreview.tsx'
 import Slots3 from '../Themes/Theme3/off-screen/slots.tsx'
 
+// Theme4 imports
+import Lower4 from '../Themes/Theme4/on-screen/Lower.tsx';
+import Upper4 from '../Themes/Theme4/on-screen/Upper.tsx';
+import Dom4 from '../Themes/Theme4/on-screen/Dom.tsx';
+import Alerts4 from '../Themes/Theme4/on-screen/Alerts.tsx';
+import LiveStats4 from '../Themes/Theme4/on-screen/LiveStats.tsx';
+import LiveFrags4 from '../Themes/Theme4/on-screen/LiveFrags.tsx';
+import MatchData4 from '../Themes/Theme4/off-screen/MatchData.tsx';
+import MatchFragrs4 from '../Themes/Theme4/off-screen/MatchFragrs.tsx';
+import WwcdSummary4 from '../Themes/Theme4/off-screen/WwcdSummary.tsx';
+import WwcdStats4 from '../Themes/Theme4/off-screen/WwcdStats.tsx'
+import OverallData4 from   '../Themes/Theme4/off-screen/OverAllData.tsx'
+import OverallFrags4 from '../Themes/Theme4/off-screen/OverallFrags.tsx'
+import Schedule4 from '../Themes/Theme4/off-screen/Schedule.tsx'
+import CommingUpNext4 from '../Themes/Theme4/off-screen/CommingUpNext.tsx'
+import Champions4 from '../Themes/Theme4/off-screen/Champions.tsx'
+import FirstRunnerUp4 from '../Themes/Theme4/off-screen/1stRunnerUp.tsx'
+import SecondRunnerUp4 from '../Themes/Theme4/off-screen/2ndRunnerUp.tsx'
+import EventMvp4 from '../Themes/Theme4/off-screen/EventMvp.tsx'
+import MatchSummary4 from '../Themes/Theme4/off-screen/MatchSummary.tsx'
+import PlayerH2H4 from '../Themes/Theme4/off-screen/playerh2h.tsx'
+import TeamH2H4 from '../Themes/Theme4/off-screen/teamh2h.tsx'
+import ZoneClose4 from '../Themes/Theme4/on-screen/zoneClose.tsx'
+import Intro4 from '../Themes/Theme4/on-screen/intro.tsx'
+import MapPreview4 from '../Themes/Theme4/off-screen/mapPreview.tsx'
+import Slots4 from '../Themes/Theme4/off-screen/slots.tsx'
+
 
 interface Tournament {
   _id: string;
@@ -229,9 +256,36 @@ const PublicThemeRenderer: React.FC = () => {
       MapPreview: MapPreview3,
       Slots: Slots3,
     },
+    Theme4: {
+      Lower: Lower4,
+      Upper: Upper4,
+      Dom: Dom4,
+      Alerts: Alerts4,
+      LiveStats: LiveStats4,
+      LiveFrags: LiveFrags4,
+      MatchData: MatchData4,
+      MatchFragrs: MatchFragrs4,
+      WwcdSummary: WwcdSummary4,
+      WwcdStats: WwcdStats4,
+      OverallData: OverallData4,
+      OverallFrags: OverallFrags4,
+      Schedule: Schedule4,
+      CommingUpNext: CommingUpNext4,
+      Champions: Champions4,
+      FirstRunnerUp: FirstRunnerUp4,
+      SecondRunnerUp: SecondRunnerUp4,
+      EventMvp: EventMvp4,
+      MatchSummary: MatchSummary4,
+      PlayerH2H: PlayerH2H4,
+      TeamH2H: TeamH2H4,
+      ZoneClose: ZoneClose4,
+      Intro: Intro4,
+      MapPreview: MapPreview4,
+      Slots: Slots4,
+    },
   };
 
-  const activeTheme = themes[theme as 'Theme1' | 'Theme2' | 'Theme3'] || themes['Theme1'];
+  const activeTheme = themes[theme as 'Theme1' | 'Theme2' | 'Theme3' | 'Theme4'] || themes['Theme1'];
 
   const {
     Lower: LowerComp,
@@ -282,14 +336,14 @@ const PublicThemeRenderer: React.FC = () => {
 
         // Determine what data is needed based on the view
         const needsOverallData = ['OverAllData', 'LiveStats', '1stRunnerUp', '2ndRunnerUp', 'EventMvp'].includes(view);
-        const needsMatches = ['OverAllData', 'Schedule'].includes(view);
+        const needsMatches = ['OverAllData', 'Schedule', 'Lower'].includes(view);
         const needsMatchDatas = ['OverAllData', 'Schedule'].includes(view);
-        const needsMatchData = ['Upper', 'Dom', 'Alerts', 'LiveStats', 'LiveFrags', 'MatchData', 'MatchFragrs', 'WwcdSummary', 'WwcdStats', 'playerH2H', 'intro', 'mapPreview', 'slots'].includes(view);
+        const needsMatchData = ['Upper', 'Dom', 'Alerts', 'LiveStats', 'LiveFrags', 'MatchData', 'MatchFragrs', 'WwcdSummary', 'WwcdStats', 'playerH2H', 'mapPreview', 'slots'].includes(view);
 
         // Always fetch basic data
         const basePromises: Promise<any>[] = [
-          api.get(`public/tournaments/${tournamentId}`),
-          api.get(`public/tournaments/${tournamentId}/rounds/${roundId}`),
+          api.get(`public/tournaments/${tournamentId}?t=${Date.now()}`),
+          api.get(`public/tournaments/${tournamentId}/rounds/${roundId}?t=${Date.now()}`),
         ];
 
         if (followSelected) {
@@ -316,6 +370,7 @@ const PublicThemeRenderer: React.FC = () => {
 
         if (needsMatches) {
           matchesResponse = baseResults[followSelected ? 3 : 2];
+          setMatches(matchesResponse.data);
         }
 
         // Resolve effective matchId
@@ -347,7 +402,6 @@ const PublicThemeRenderer: React.FC = () => {
 
         if (needsMatchDatas && matchesResponse) {
           const matchesData = matchesResponse.data;
-          setMatches(matchesData);
           additionalPromises.push(
             ...matchesData.map((match: Match) =>
               api.get(`public/matches/${match._id}/matchdata`).catch(() => null)
@@ -438,7 +492,7 @@ const PublicThemeRenderer: React.FC = () => {
     // Pass tournament data to the appropriate component
     switch (view) {
       case 'Lower':
-        return <LowerComp tournament={tournament} round={round} match={match} />;
+        return <LowerComp tournament={tournament} round={round} match={match} totalMatches={matches.length} />;
       case 'Upper':
         return <UpperComp tournament={tournament} round={round} match={match} matchData={matchData} />;
       case 'Dom':

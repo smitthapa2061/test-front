@@ -345,191 +345,148 @@ const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) =>
     );
   }
 
-  // Upper component UI
-return (
-  <div className="w-[1920px] h-[1080px] relative bg-black">
-    {/* Horizontal Team Cards */}
-    {topTeams.map((team, index) => {
-      const CARD_W = 330;
-      const CARD_H = 90;
+ return (
+  <svg
+    width="1920"
+    height="1080"
+    viewBox="0 0 1920 1080"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient
+        id="paint0_linear_2096_15"
+        x1="508.5"
+        y1="110"
+        x2="356.443"
+        y2="-68.2287"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor={tournament.primaryColor || "#FFCC16"} />
+        <stop offset="1" />
+      </linearGradient>
+
+      <linearGradient
+        id="paint1_linear_2096_15"
+        x1="301.5"
+        y1="83.75"
+        x2="561"
+        y2="137"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor={tournament.secondaryColor || "#FF6800"} />
+        <stop offset="1" stopColor={tournament.primaryColor || "#FFCC16"} />
+      </linearGradient>
+    </defs>
+
+    {topTeams.slice(0, 4).map((team, index) => {
+      const CARD_W = 297;
       const GAP = 30;
-      const TOTAL_W = topTeams.length * CARD_W + (topTeams.length - 1) * GAP;
+      const TOTAL_W = 4 * CARD_W + 3 * GAP;
       const startX = (1920 - TOTAL_W) / 2;
       const baseX = startX + index * (CARD_W + GAP);
-      const baseY = 40;
+      const tx = baseX - 297;
 
-      const BAR_W = 14;
-      const BAR_MAX = 60;
-
-      const WWCD_BOX_WIDTH = 330;
-      const WWCD_BOX_HEIGHT = 35;
-      const wwcdWidth = Math.max(0, (team.wwcd / 100) * WWCD_BOX_WIDTH);
-
-      let wwcdColor = "#22c55e"; // default green
-      if (team.wwcd >= 75) wwcdColor = "#22c55e";
-      else if (team.wwcd >= 50) wwcdColor = "#facc15";
-      else if (team.wwcd >= 25) wwcdColor = "#f97316";
-      else wwcdColor = "#ef4444";
+      const useApiHealth = round?.apiEnable === true;
+      const primaryColor = tournament.primaryColor || "#fc030f";
+      const secondaryColor = tournament.secondaryColor || "#fff600";
 
       return (
-        <div
-          key={team._id}
-          className="absolute"
-          style={{
-            left: baseX,
-            top: baseY,
-            width: CARD_W,
-            height: CARD_H + WWCD_BOX_HEIGHT + 20, // extra space for WWCD
-          }}
-        >
-          {/* Main Card */}
-          <div
-            style={{
-              width: CARD_W,
-              height: CARD_H,
-              background: `linear-gradient(135deg, ${tournament.primaryColor || "#000"}, ${
-                tournament.secondaryColor || "#333"
-              })`,
-              position: "relative",
-            }}
+        <g key={team._id} transform={`translate(${tx}, 0)`}>
+          {/* Header */}
+          <path
+            d="M594.699 55.5L594.491 57.6895L589.491 110.189L589.318 112H299.342L299.506 109.848L303.506 57.3477L303.646 55.5H594.699Z"
+            fill="url(#paint0_linear_2096_15)"
+            stroke="url(#paint1_linear_2096_15)"
+            strokeWidth="4"
+          />
+
+          {/* Body */}
+          <path
+            d="M297.124 120L293 151H587.845L593 120H297.124Z"
+            fill="#D9D9D9"
+          />
+
+          <image x="313" y="60" width="50" height="50" href={team.teamLogo} />
+          <text
+            x="363"
+            y="103"
+            fontFamily="AGENCYB"
+            fontSize="44"
+            fill="white"
           >
-            {/* Left white strip */}
-            <div
-              style={{
-                position: "absolute",
-                left: 0,
-                top: 0,
-                width: 7,
-                height: CARD_H,
-                backgroundColor: "#fff",
-              }}
-            />
-            {/* Right fade */}
-            <div
-              style={{
-                position: "absolute",
-                left: CARD_W * 0.55 + 16,
-                top: 0,
-                width: CARD_W * 0.4,
-                height: CARD_H,
-                background: "linear-gradient(to right, #383838, #000)",
-              }}
-            />
-            {/* Team Logo */}
-            <img
-              src={team.teamLogo}
-              alt={team.teamTag}
-              style={{
-                position: "absolute",
-                left: 12,
-                top: 15,
-                width: 60,
-                height: 60,
-                objectFit: "cover",
-              }}
-            />
-            {/* Team Tag */}
-            <span
-              style={{
-                position: "absolute",
-                left: 85,
-                top: 58 - 32, // adjust text vertical
-                fontSize: 32,
-                fontWeight: 900,
-                fontFamily: "Supermolot, sans-serif",
-                color: "white",
-              }}
-            >
-              {team.teamTag}
-            </span>
+            {team.teamTag}
+          </text>
 
-            {/* Player health bars */}
-            {team.players.slice(0, 4).map((player, i) => {
-              const barX = 230 + i * (BAR_W + 6);
-              const barY = 15;
+          {/* PLAYER HEALTH BARS */}
+          {team.players.slice(0, 4).map((player, i) => {
+            const barX = 513 + i * 13;
+            const barY = 62;
+            const barW = 10;
+            const barH = 45;
 
-              const isDead = player.liveState === 5 || player.bHasDied;
-              const isKnocked = player.liveState === 4;
-              const useApi = round?.apiEnable;
+            const isDead = player.liveState === 5 || player.bHasDied;
+            const isKnocked = player.liveState === 4;
+            const isAlive = [0, 1, 2, 3].includes(player.liveState);
 
-              let height = BAR_MAX;
-              let color = "#fff";
+            let barHeight = 0;
+            let barColor = "";
 
-              if (useApi) {
-                const ratio = Math.max(0, Math.min(1, player.health / (player.healthMax || 100)));
-                height = ratio * BAR_MAX;
-                color = isDead ? "#6b7280" : isKnocked ? "#ef4444" : "#fff";
-              } else {
-                color = isDead ? "#6b7280" : isKnocked ? "#ef4444" : "#fff";
+            if (useApiHealth) {
+              if (!isDead) {
+                const ratio = Math.max(
+                  0,
+                  Math.min(1, player.health / (player.healthMax || 100))
+                );
+                barHeight = ratio * barH;
+                barColor = isKnocked
+                  ? primaryColor
+                  : isAlive
+                  ? secondaryColor
+                  : "";
               }
+            } else {
+              if (!isDead) {
+                barHeight = barH;
+                barColor = isKnocked ? primaryColor : secondaryColor;
+              }
+            }
 
-              return (
-                <div key={player._id}>
-                  {/* Background bar */}
-                  <div
+            return (
+              <g key={player._id}>
+                {/* Background */}
+                <rect
+                  x={barX}
+                  y={barY}
+                  width={barW}
+                  height={barH}
+                  fill="#4b5563"
+                
+                />
+
+                {/* Health */}
+                {barHeight > 0 && (
+                  <rect
+                    x={barX}
+                    y={barY + (barH - barHeight)}
+                    width={barW}
+                    height={barHeight}
+                    fill={barColor}
+                 
                     style={{
-                      position: "absolute",
-                      left: barX,
-                      top: barY,
-                      width: BAR_W,
-                      height: BAR_MAX,
-                      backgroundColor: "#4b5563",
+                      transition: "height 0.3s ease, y 0.3s ease",
                     }}
                   />
-                  {/* Foreground health bar */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: barX,
-                      top: barY + (BAR_MAX - height),
-                      width: BAR_W,
-                      height: height,
-                      backgroundColor: color,
-                    }}
-                  />
-                </div>
-              );
-            })}
-
-            {/* WWCD bar */}
-            <div
-              style={{
-                position: "absolute",
-                top: CARD_H + 10,
-                left: 0,
-                width: WWCD_BOX_WIDTH,
-                height: WWCD_BOX_HEIGHT,
-                backgroundColor: "#000",
-              }}
-            >
-              <div
-                style={{
-                  width: wwcdWidth,
-                  height: "100%",
-                  backgroundColor: wwcdColor,
-                }}
-              />
-              <span
-                style={{
-                  position: "absolute",
-                  width: "100%",
-                  textAlign: "center",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "white",
-                  fontSize: 20,
-                  fontFamily: "payBack, sans-serif",
-                }}
-              >
-                WWCD - {team.wwcd}%
-              </span>
-            </div>
-          </div>
-        </div>
+                )}
+              </g>
+            );
+          })}
+        </g>
       );
     })}
-  </div>
+  </svg>
 );
+
 
 
 

@@ -8,12 +8,13 @@ import MatchDataViewer from "./dashboard/matchDataController.tsx";
 import DisplayHud from "./dashboard/DisplayHud.tsx";
 import PublicThemeRenderer from "./dashboard/PublicThemeRenderer.tsx";
 import Login from "./login/page.tsx";
+import Home from "./Home.tsx";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
 
         <Route path="/dashboard" element={<Dashboard />} />

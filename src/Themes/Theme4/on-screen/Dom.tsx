@@ -307,72 +307,55 @@ return (
             transform: "translateZ(0)",
           }}
         >
-          {/* PLAYER CARD */}
-          <div
-            className="absolute left-0 top-[372px] w-[449px]"
-            style={{
-              willChange: "transform",
-              transform: "translateZ(0)",
-            }}
-          >
-            {/* NAME BAR */}
-            <div
-              className="h-[56px] flex items-center px-6 w-full"
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || "#E01515"}, ${tournament.secondaryColor || "#620505"})`,
-              }}
-            >
-              <span className="text-white text-[40px] font-bold font-[Supermolot] text-center w-full">
-                {displayedPlayer.playerName}
-              </span>
-            </div>
+          <svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M400 341.5C404.142 341.5 407.5 344.858 407.5 349V480.5H175.5V341.5H400Z" fill="url(#paint0_linear_2087_24)" stroke="url(#paint1_linear_2087_24)"/>
+            <path d="M178 333.544L0 317V505L178 488.456V333.544Z" fill="url(#paint2_linear_2087_24)"/>
+            <path d="M18 404C14.8 400.8 4.66667 397.333 0 396V317L29.5 320C3.1 351.6 10.8333 389.167 18 404Z" fill="url(#paint3_linear_2087_24)"/>
+            <path d="M103.585 477.472L81.8658 497.328L177.307 488.463L177.687 431.465L164.193 422.375L169.123 435.908C158.256 439.435 153.152 446.968 151.959 450.294L139.462 442.21C141.005 451.821 148.048 459.601 151.377 462.29L151.35 466.29C129.55 483.345 110.423 480.851 103.585 477.472Z" fill="url(#paint4_linear_2087_24)"/>
+            <path d="M190 425H178V480.5H407V398C395.4 393.2 392.833 378.333 393 371.5C378.5 392 377 405.5 376 415.5C375.2 423.5 385.333 434.167 390.5 438.5C392.5 440.5 393 449.667 393 454C395.8 456 395.5 457.833 395 458.5C382.6 462.9 350.833 455.667 336.5 451.5C324.5 466.7 298.167 468.167 286.5 467C282.9 466.6 282 463.833 282 462.5C285.6 448.9 283.5 439.833 282 437C280 439.8 276.167 447.833 274.5 451.5C267.7 444.3 254.333 445.167 248.5 446.5L246 430.5C240 437.5 238 450 238 453C238 455.4 235.333 457.333 234 458C197.6 452.8 189.5 433.833 190 425Z" fill="url(#paint5_linear_2087_24)" fill-opacity="0.22"/>
+            <rect x="194" y="422" width="76" height="3" fill="black"/>
+            <rect x="315" y="422" width="76" height="3" fill="black"/>
 
-            {/* BODY */}
-            <div className="flex">
-              {/* PLAYER IMAGE */}
-              <div className="w-[216px] h-[206px] bg-gradient-to-b from-[#2B2B2B] to-black overflow-hidden">
-                <img
-                  src={displayedPlayer.picUrl || "/def_char.png"}
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                  loading="eager"
-                  decoding="async"
-                />
-              </div>
+            {/* Dynamic content */}
+            <image 
+             clipPath="url(#playerClip)"
+            x="-10" y="323" width="190" height="190" href={displayedPlayer.picUrl || "/def_char.png"} />
+=            <image x="267" y="391" width="50" height="50" href={displayedPlayer.teamLogo || "/def_logo.png"} />
 
-              {/* MILESTONE */}
-              <div className="relative w-[233px] h-[206px] bg-gradient-to-b from-[#FFD700] to-[#FFA500] flex flex-col items-center justify-center overflow-hidden">
-                <img
-                  src={displayedPlayer.teamLogo || "/def_logo.png"}
-                  className="absolute inset-0 w-full h-full object-cover opacity-10"
-                  draggable={false}
-                  loading="eager"
-                />
+            <text x="297" y="469" textAnchor="middle" fill="black" fontSize="30" fontFamily="AGENCYB" fontWeight="bold">{displayedPlayer.playerName}</text>
+            <text x="300" y="400" textAnchor="middle" fill="black" fontSize="40" fontFamily="AGENCYB">{displayedPlayer.milestone}</text>
 
-                <img
-                  src={displayedPlayer.teamLogo || "/def_logo.png"}
-                  className="w-[100px] h-[100px] object-contain mb-2"
-                  draggable={false}
-                />
+            <defs>
+                <clipPath id="playerClip">
+    <path d="M178 333.544L0 317V505L178 488.456V333.544Z" />
+  </clipPath>
 
-                <span className="font-[AWAKENNING] text-black text-[50px] leading-none">
-                  {displayedPlayer.milestone}
-                </span>
-              </div>
-            </div>
-
-            {/* KILLS BAR */}
-            <div
-              className="h-[52px] flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || "#E01515"}, ${tournament.secondaryColor || "#620505"})`,
-              }}
-            >
-              <span className="text-white text-[40px] font-black font-[Supermolot]">
-                {displayedPlayer.killNum} KILLS
-              </span>
-            </div>
-          </div>
+              <linearGradient id="paint0_linear_2087_24" x1="306.443" y1="397.471" x2="423.5" y2="648.5" gradientUnits="userSpaceOnUse">
+                <stop stopColor="white"/>
+                <stop offset="1" stopColor="#737373"/>
+              </linearGradient>
+              <linearGradient id="paint1_linear_2087_24" x1="291.5" y1="342" x2="344.5" y2="519" gradientUnits="userSpaceOnUse">
+                <stop stopColor={tournament.primaryColor || '#E7A801'}/>
+                <stop offset="1"/>
+              </linearGradient>
+              <linearGradient id="paint2_linear_2087_24" x1="185.521" y1="302.461" x2="-29.0338" y2="669.465" gradientUnits="userSpaceOnUse">
+                <stop stopColor="white"/>
+                <stop offset="1" stopColor="#999999"/>
+              </linearGradient>
+              <linearGradient id="paint3_linear_2087_24" x1="14.75" y1="317" x2="-28.5" y2="501" gradientUnits="userSpaceOnUse">
+                <stop stopColor={tournament.primaryColor || '#F6B300'}/>
+                <stop offset="1"/>
+              </linearGradient>
+              <linearGradient id="paint4_linear_2087_24" x1="130.057" y1="422.147" x2="129.79" y2="537.148" gradientUnits="userSpaceOnUse">
+                <stop stopColor={tournament.primaryColor || '#F2B001'}/>
+                <stop offset="1"/>
+              </linearGradient>
+              <linearGradient id="paint5_linear_2087_24" x1="303" y1="405" x2="250.5" y2="648" gradientUnits="userSpaceOnUse">
+                <stop stopColor={tournament.primaryColor || '#E9A901'}/>
+                <stop offset="1" stopColor="#737373"/>
+              </linearGradient>
+            </defs>
+          </svg>
         </motion.div>
       )}
     </AnimatePresence>
