@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import SocketManager from '../../../dashboard/socketManager.tsx';
 
 interface Tournament {
@@ -39,6 +38,10 @@ interface Player {
   health?: number;
   healthMax?: number;
   liveState?: number; // 0,1,2,3 = alive, 4 = knocked, 5 = dead
+  useSmokeGrenadeNum?: number;
+  useFragGrenadeNum?: number;
+  useBurnGrenadeNum?: number;
+  useFlashGrenadeNum?: number;
 }
 
 interface Team {
@@ -287,148 +290,163 @@ const WwcdStats: React.FC<WwcdSummaryProps> = ({ tournament, round, match, match
 
   if (!localMatchData) {
     return (
-      <div className="w-[1920px] h-[1080px] bg-black flex items-center justify-center">
+      <div className="w-[1920px] h-[1080px]  flex items-center justify-center">
         <div className="text-white text-2xl font-[Righteous]">No match data available</div>
       </div>
     );
   }
 
   return (
-    <div className="w-[1920px] h-[1080px] relative overflow-hidden ">
-      {/* Header */}
-      <motion.div
-        className="relative z-10 text-center left-[600px] top-[0px] text-[5rem] font-bebas font-[300]"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-      >
-        <div className="flex items-center justify-between ">
-          <div className="flex items-center space-x-4">
-            <div>
-              <h1 className="text-white font-bold whitespace-pre text-[8rem]">WWCD TEAM STATS</h1>
-              {round && match && (
-                <motion.p
-                  className="text-gray-300 text-[2rem] font-[Righteous] whitespace-pre p-[10px] mt-[-30px]"
-                  initial={{ backgroundColor: 'rgba(255,0,0,0.2)' }}
-                  animate={{ backgroundColor: ['rgba(255,0,0,0.25)', 'rgba(255,0,0,0.45)', 'rgba(255,0,0,0.25)'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{
-                    background: `linear-gradient(45deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`
-                  }}
-                >
-                  {`${round.roundName} - DAY${(round as any).day ? ` ${(round as any).day}` : ''} - ${match.matchName ? match.matchName : `Match ${match.matchNo || match._matchNo}`}`}
-                </motion.p>
-              )}
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Teams with placement points = 10 */}
-      <div className="absolute inset-x-0 top-[150px] px-10">
-        <div className="">
-          {teamsWithTotals.length === 0 ? (
-            <div className="text-center text-white font-[Righteous] text-3xl">No team with placement points 10</div>
-          ) : (
-            teamsWithTotals.map((team) => (
-<motion.div
-  key={(team as any)._id || (team as any).teamId}
-  className="flex justify-between items-center px-20"
-  initial={{ opacity: 0, x: -20 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ duration: 0.4 }}
+    <div className='w-[1920px] h-[1080px] '>
+<div
+  style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  }}
+  className="w-[1800px] h-[250px] text-[142px] font-[agencyb] absolute left-[140px]"
 >
-  {/* Left column (2 players stacked vertically) */}
-  <div className="flex flex-col gap-2 relative left-[400px] top-[100px]">
-    {team.players?.slice(0, 2).map((player, idx) => (
-      <div className='w-[300px] h-[350px]'
-      style={{background: `linear-gradient(135deg, ${tournament.primaryColor || '#333'}, ${tournament.secondaryColor || '#666'})`}}
-      >
-          <div className='w-[400px] h-[350px] bg-[#0000008d] absolute left-[-400px]'>
-            <div
-             className='w-full h-[25%] bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] flex items-center justify-center'>
-<span className='text-[2.5rem] font-bold font-[Righteous] '>{player.playerName}</span>
-            </div>
-            <div className="w-full font-bebas grid grid-cols-2 items-center h-[88px] text-white border-b-[2px] border-white">
-  <span className="text-[4rem] ml-[20px]">DAMAGE</span>
-  <span className="text-[4rem] text-center">{player.damage}</span>
+  WWCD TEAM STATS
+
+  
+</div>
+<div
+ style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  }}
+className="text-[78px] font-[agencyb] absolute left-[1340px] top-[0px]">
+    {round?.roundName}
+  </div>
+<div className='text-black w-[400px] h-[200px] text-[78px] font-[agencyb] absolute left-[1310px] top-[70px]'>
+DAY {round?.day} MATCH {match?.matchNo}
+
 </div>
 
-<div className="w-full text-white font-bebas grid grid-cols-2 items-center h-[88px] border-b-[2px] border-white">
-  <span className="text-[4rem] ml-[20px]">KILLS</span>
-  <span className="text-[4rem] text-center">{player.killNum}</span>
+<div className='absolute left-[140px] top-[200px]  w-[500px] h-[750px]'>
+<div className='w-[300px] h-[300px] absolute left-[100px]'>
+  <img src={winner?.teamLogo} alt="" className='w-[100%] h-[100%]'/>
+</div>
+<div 
+
+  style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  }}
+className='text-white font-[AGENCYB] text-[273px] absolute left-[140px] top-[230px]'>
+
+  {winner?.totalKills}
+</div>
+<div
+ style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.secondaryColor || '#000'
+}, #000)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  }}
+className='text-white font-[AGENCYB] text-[100px] absolute left-[136px] top-[520px]'>
+  ELIMS
+</div>
+</div>
+<div className='w-[1400px] h-[800px]  absolute left-[520px] top-[180px] flex'>
+{winner?.players?.map((player, index) => (
+  <div key={player._id} className='w-[353px] h-[110%] bg-white ml-[20px]'>
+  <div
+  style={{
+    backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+  }}
+  className="w-full h-[400px] relative overflow-hidden rounded-lg"
+>
+  <img
+    src={player?.picUrl || "/def_char.png"}
+    alt={player.playerName}
+    className="absolute top-0 left-0 w-full h-full object-cover"
+  />
 </div>
 
-<div className="w-full text-white font-bebas grid grid-cols-2 items-center h-[88px] border-b-[2px] border-white">
-  <span className="text-[4rem] ml-[20px]">ASSISTS</span>
-  <span className="text-[4rem] text-center">{player.assists}</span>
-</div>
+    <div 
+    style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.secondaryColor || '#000'
+}, #000)`
 
-          </div>
-      <img
-        key={player._id || idx}
-        src={player.picUrl || "https://res.cloudinary.com/dqckienxj/image/upload/v1735718663/defult_chach_apsjhc_jydubc.png"}
-        alt={player.playerName}
-     className="w-[300px] h-[350px] object-cover "
-      />
+  }}
+   className='w-[99%] h-[100px] m-[2px] font-[agencyb] flex items-center justify-center'>
+    <div className='text-white text-[58px] '>{player?.playerName}</div>
     
+   </div>
+   <div
+   style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`
 
-
-     
-      </div>
-    ))}
-  </div>
-
-<div className='bg-[#00000078] w-[250px] h-[710px] absolute left-[835px] top-[100px] flex items-center flex-col'>
-<img src= {team.teamLogo} alt="" className='w-full h-full object-contain' />
-   <div className='text-white text-[3rem] mt-[-230px] font-bebas'>{team.teamTag}</div>
+  }}
+    className='w-[99%] h-[70px] m-[2px] bg-black'>
+<div className='text-white font-[AGENCYB] flex items-center justify-around h-[83%] text-[3rem] w-[300px]'>
+ <div>DAMAGE</div>
+ <div>{player?.damage}</div>
 </div>
-
-  {/* Right column (2 players stacked vertically) */}
-  <div className="flex flex-col gap-2 relative right-[400px] top-[100px]">
-    {team.players?.slice(2, 4).map((player, idx) => (
-       <div className=''
-       style={{background: `linear-gradient(135deg, ${tournament.primaryColor || '#333'}, ${tournament.secondaryColor || '#666'})`}}
-       >
-          <div className='w-[400px] h-[350px] bg-[#0000008d] absolute right-[-400px]'>
-           
-            <div
-             className='w-full h-[25%] bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] flex items-center justify-center'>
-<span className='text-[2.5rem] font-bold font-[Righteous] '>{player.playerName}</span>
-            </div>
-            <div className="w-full font-bebas grid grid-cols-2 items-center h-[88px] text-white border-b-[2px] border-white">
-  <span className="text-[4rem] ml-[20px]">DAMAGE</span>
-  <span className="text-[4rem] text-center">{player.damage}</span>
-</div>
-
-<div className="w-full text-white font-bebas grid grid-cols-2 items-center h-[88px] border-b-[2px] border-white">
-  <span className="text-[4rem] ml-[20px]">KILLS</span>
-  <span className="text-[4rem] text-center">{player.killNum}</span>
-</div>
-
-<div className="w-full text-white font-bebas grid grid-cols-2 items-center h-[88px] border-b-[2px] border-white">
-  <span className="text-[4rem] ml-[20px]">ASSISTS</span>
-  <span className="text-[4rem] text-center">{player.assists}</span>
-</div>
-          </div>
-       <img
-         key={player._id || idx}
-         src={player.picUrl || "https://res.cloudinary.com/dqckienxj/image/upload/v1735718663/defult_chach_apsjhc_jydubc.png"}
-         alt={player.playerName}
-      className="w-[300px] h-[350px] object-cover "
-       />
-       </div>
-    ))}
-  </div>
-</motion.div>
-
-
-            ))
-          )}
-        </div>
-      </div>
-
+  
     </div>
+      <div
+   style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`
+
+  }}
+    className='w-[99%] h-[70px] m-[2px] bg-black mt-[30px]'>
+      <div className='text-white font-[AGENCYB] flex items-center justify-around h-[83%] text-[3rem] w-[300px]'>
+ <div>ELIMS</div>
+ <div>{player?.killNum}</div>
+</div>
+    </div>
+      <div
+   style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`
+
+  }}
+    className='w-[99%] h-[70px] m-[2px] bg-black mt-[30px]'>
+     <div className='text-white font-[AGENCYB] flex items-center justify-around h-[83%] text-[3rem] w-[300px]'>
+<div>THORWABLE</div>
+<div>{(player?.useSmokeGrenadeNum || 0) + (player?.useFragGrenadeNum || 0) + (player?.useBurnGrenadeNum || 0) + (player?.useFlashGrenadeNum || 0)}</div>
+</div>
+    </div>
+      <div
+   style={{
+   backgroundImage: `linear-gradient(135deg, ${
+  tournament.primaryColor || '#000'
+}, #000)`
+
+  }}
+    className='w-[99%] h-[70px] m-[2px] bg-black mt-[30px]'>
+      <div className='text-white font-[AGENCYB] flex items-center justify-around h-[83%] text-[3rem] w-[300px]'>
+ <div>DAMAGE</div>
+ <div>{player?.damage}</div>
+</div>
+    </div>
+  </div>
+  
+  
+))}
+
+</div>
+</div>
+
+
+   
   );
 };
 

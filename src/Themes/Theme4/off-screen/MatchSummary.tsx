@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import api from '../../../login/api';
 
 interface Tournament {
   _id: string;
@@ -57,179 +58,149 @@ interface MatchSummaryProps {
   tournament: Tournament;
   round?: Round | null;
   match?: Match | null;
+  matchData?: MatchData;
 }
 
-const MatchSummary: React.FC<MatchSummaryProps> = ({ tournament, round, match }) => {
-  const [matchData, setMatchData] = useState<MatchData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const StatBox: React.FC<{ header: string; value: string | number; color?: string }> = ({
+  header,
+  value,
+  color = '#ffffff',
+}) => {
+  return (
+    <div
+      className="flex flex-col items-center justify-center w-[200px] h-[150px] m-[8px] p-2 rounded-md shadow-lg transform skew-x-10"
+      style={{ backgroundColor: color }}
+    >
+      <div className="text-[20px] font-bold text-black mb-2">{header}</div>
+      <div className="text-[36px] font-[AGENCYB] text-black">{value}</div>
+    </div>
+  );
+};
+
+
+const MatchSummary: React.FC<MatchSummaryProps> = ({ tournament, round, match, matchData: propMatchData }) => {
+  const [matchData, setMatchData] = useState<MatchData | null>(propMatchData || null);
+  const [loading, setLoading] = useState(!propMatchData);
 
   useEffect(() => {
-    const fetchMatchData = async () => {
-      if (!match) return;
-      try {
-        setLoading(true);
-        const url = `https://backend-prod-bs4c.onrender.com/api/public/matches/${match._id}/matchdata`;
-        const res = await fetch(url, { credentials: 'include' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data: MatchData = await res.json();
-        setMatchData(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch match data:', err);
-        setError('Failed to load match data');
-        setMatchData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (match?._id) fetchMatchData();
-  }, [match?._id]);
+    if (propMatchData) {
+      setMatchData(propMatchData);
+      setLoading(false);
+    } else if (match?._id && !matchData) {
+      const fetchMatchData = async () => {
+        try {
+          setLoading(true);
+          const res = await api.get(`/public/matches/${match._id}/matchdata`);
+          setMatchData(res.data);
+        } catch (err) {
+          console.error('Failed to fetch match data:', err);
+          setMatchData(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchMatchData();
+    }
+  }, [match?._id, propMatchData, matchData]);
 
   const stats = useMemo(() => {
     if (!matchData) return null;
 
-    let totalEliminations = 0;
-    let totalAssists = 0;
-    let totalKnockouts = 0;
-    let totalKillsInVehicle = 0;
-    let totalKillsByGrenade = 0;
-    let totalHeadshots = 0;
+    let totalHeals = 0;
+    let totalKnocks = 0;
+    let totalAirdrops = 0;
+    let totalDamage = 0;
+    let totalRevives = 0;
+    let longestDistElim = 0;
+    let totalElims = 0;
+    let matchDuration = 0;
 
     matchData.teams.forEach(team => {
       team.players.forEach(player => {
-        totalEliminations += Number(player.killNum || 0);
-        totalAssists += Number(player.assists || 0);
-        totalKnockouts += Number(player.knockouts || 0);
-        totalKillsInVehicle += Number(player.killNumInVehicle || 0);
-        totalKillsByGrenade += Number(player.killNumByGrenade || 0);
-        totalHeadshots += Number(player.headShotNum || 0);
+        totalHeals += Number(player.heals || 0);
+        totalKnocks += Number(player.knockouts || 0);
+        totalAirdrops += Number(player.airDropsLooted || 0);
+        totalDamage += Number(player.damage || 0);
+        totalRevives += Number(player.revives || 0);
+        longestDistElim = Math.max(longestDistElim, Number(player.longestDistElim || 0));
+        totalElims += Number(player.killNum || 0);
+        matchDuration = Math.max(matchDuration, Number(player.matchDuration || 0));
       });
     });
 
     return {
-      totalEliminations,
-      totalAssists,
-      totalKnockouts,
-      totalKillsInVehicle,
-      totalKillsByGrenade,
-      totalHeadshots,
+      totalHeals,
+      totalKnocks,
+      totalAirdrops,
+      totalDamage,
+      totalRevives,
+      longestDistElim,
+      totalElims,
+      matchDuration,
     };
   }, [matchData]);
 
   if (loading) {
     return (
-      <div style={{ width: '1920px', height: '1080px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="w-[1920px] h-[1080px] flex items-center justify-center">
         <div style={{ color: 'white', fontSize: '24px', fontFamily: 'Righteous' }}>Loading...</div>
       </div>
     );
   }
 
-  if (error || !matchData || !stats) {
-    return (
-      <div style={{ width: '1920px', height: '1080px', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'white', fontSize: '24px', fontFamily: 'Righteous' }}>{error || 'No match data available'}</div>
-      </div>
-    );
-  }
+  if (!matchData || !stats) return null;
+
+  const statBoxes = [
+    { header: 'TOTAL HEAL', value: stats.totalHeals },
+    { header: 'TOTAL KNOCKS', value: stats.totalKnocks },
+    { header: 'AIR DROPS LOOTED', value: stats.totalAirdrops },
+    { header: 'TOTAL DAMAGE', value: stats.totalDamage },
+    { header: 'TOTAL REVIVES', value: stats.totalRevives },
+    { header: 'LONGEST DIST. ELIMS', value: stats.longestDistElim },
+    { header: 'TOTAL ELIMS', value: stats.totalElims },
+    { header: 'TOTAL MATCH DURATION', value: stats.matchDuration },
+    { header: 'PLACEHOLDER', value: '-' }, // You can replace with another stat
+  ];
 
   return (
-    <div style={{ width: '1920px', height: '1080px', position: 'relative',  color: 'white' }}>
-      {/* Header */}
-      <div className="absolute top-[40px] left-[180px]">
-      <span className='font-bebas text-[6rem] relative left-[90px]'>MATCH SUMMARY</span>
-        <div 
+    <div className="w-[1920px] h-[1080px] bg-purple-800 flex flex-col items-center relative">
+      {/* Titles */}
+      <div className="w-[1500px] h-[250px] absolute top-[100px] flex">
+        <div
           style={{
-            backgroundImage: `linear-gradient(to left, transparent, ${tournament.primaryColor})`,
-            clipPath: "polygon(30px 0%, 100% 0%, 100% 100%, 30px 100%, 0% 50%)",
+            backgroundImage: `linear-gradient(135deg, ${tournament.secondaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
-          className="text-[2rem] font-[Righteous] pl-[40px] flex items-center h-[70px] mt-[-20px] ml-[50px]">
-    {tournament.tournamentName} - {round?.roundName} - MATCH {match?.matchNo ?? match?._matchNo ?? 'N/A'}
+          className="font-[AGENCYB] text-[150px]"
+        >
+          GAME SUMMARY
+        </div>
+        <div
+          style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+          className="font-[AGENCYB] text-[100px] absolute left-[1000px]"
+        >
+          {round?.roundName}
+        </div>
+        <div className="text-black font-[AGENCYB] text-[80px] absolute left-[1020px] top-[100px] w-[600px]">
+          DAY {round?.day} - MATCH {match?.matchNo}
         </div>
       </div>
+<div className="mt-[400px] flex flex-wrap justify-center w-[1000px] skew-x-[-10deg]">
+  {statBoxes.map((stat, idx) => (
+    <StatBox key={idx} header={stat.header} value={stat.value} color="#ffffff" />
+  ))}
+</div>
 
-      {/* Stats Display */}
-      <div className="absolute top-[300px] left-[50%] transform -translate-x-1/2 w-[1500px] h-[1600px] ">
-        <div className="grid grid-cols-3 gap-6">
-          {/* Total Eliminations */}
-          <div className="flex flex-col items-center">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-              }}
-              className="w-full h-[250px] rounded-lg flex flex-col items-center justify-center p-6">
-              <div className="text-[5rem] font-bebas text-yellow-300">{stats.totalEliminations}</div>
-              <div className="text-[1.5rem] font-[Righteous] text-white mt-2 bg-[#000000a5] w-full flex justify-center p-[10px]">ELIMINATIONS</div>
-            </div>
-          </div>
-
-          {/* Total Assists */}
-          <div className="flex flex-col items-center">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-              }}
-              className="w-full h-[250px] rounded-lg flex flex-col items-center justify-center p-6">
-              <div className="text-[5rem] font-bebas text-yellow-300">{stats.totalAssists}</div>
-              <div className="text-[1.5rem] font-[Righteous] text-white mt-2 bg-[#000000a5] w-full flex justify-center p-[10px]">ASSISTS</div>
-            </div>
-          </div>
-
-          {/* Total Knockouts */}
-          <div className="flex flex-col items-center">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-              }}
-              className="w-full h-[250px] rounded-lg flex flex-col items-center justify-center p-6">
-              <div className="text-[5rem] font-bebas text-yellow-300">{stats.totalKnockouts}</div>
-              <div className="text-[1.5rem] font-[Righteous] text-white mt-2 bg-[#000000a5] w-full flex justify-center p-[10px]">KNOCKOUTS</div>
-            </div>
-          </div>
-
-          {/* Vehicle Kills */}
-          <div className="flex flex-col items-center">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-              }}
-              className="w-full h-[250px] rounded-lg flex flex-col items-center justify-center p-6">
-              <div className="text-[5rem] font-bebas text-yellow-300">{stats.totalKillsInVehicle}</div>
-              <div className="text-[1.5rem] font-[Righteous] text-white mt-2 bg-[#000000a5] w-full flex justify-center p-[10px]">VEHICLE KILLS</div>
-            </div>
-          </div>
-
-          {/* Grenade Kills */}
-          <div className="flex flex-col items-center">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-              }}
-              className="w-full h-[250px] rounded-lg flex flex-col items-center justify-center p-6">
-              <div className="text-[5rem] font-bebas text-yellow-300">{stats.totalKillsByGrenade}</div>
-              <div className="text-[1.5rem] font-[Righteous] text-white mt-2 bg-[#000000a5] w-full flex justify-center p-[10px]">GRENADE KILLS</div>
-            </div>
-          </div>
-
-          {/* Headshots */}
-          <div className="flex flex-col items-center">
-            <div
-              style={{
-                background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-              }}
-              className="w-full h-[250px] rounded-lg flex flex-col items-center justify-center p-6">
-              <div className="text-[5rem] font-bebas text-yellow-300">{stats.totalHeadshots}</div>
-              <div className="text-[1.5rem] font-[Righteous] text-white mt-2 bg-[#000000a5] w-full flex justify-center p-[10px]">HEADSHOTS</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Additional Info */}
-     
     </div>
   );
 };
 
 export default MatchSummary;
+
+
+
