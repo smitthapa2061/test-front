@@ -374,7 +374,7 @@ const DisplayHud: React.FC = () => {
                               </div>
 
                               <div className="flex flex-wrap gap-2">
-                                {['MatchSummary', 'Lower', 'Upper', 'Dom', 'LiveStats', 'LiveFrags', 'Alerts', 'MatchData', 'MatchFragrs', 'CommingUpNext', 'OverAllData', 'OverallFrags', 'WwcdStats', 'WwcdSummary', 'playerH2H', 'TeamH2H', 'Champions', '1stRunnerUp', '2ndRunnerUp', 'EventMvp', 'ZoneClose', 'intro', 'mapPreview', 'slots'].map((viewName) => (
+                                {['MatchSummary', 'Lower', 'Upper', 'Dom', 'LiveStats', 'LiveFrags', 'Alerts', 'MatchData', 'MatchFragrs', 'CommingUpNext', 'OverAllData', 'OverallFrags', 'WwcdStats', 'WwcdSummary', 'playerH2H', 'TeamH2H', 'Champions', '1stRunnerUp', '2ndRunnerUp', 'EventMvp', 'ZoneClose', 'intro', 'mapPreview', 'slots', 'mvp', 'highlightPoints', 'HighlightSchedule', 'RosterShowCase'].map((viewName) => (
                                   <button
                                     key={viewName}
                                     className="bg-slate-700 hover:bg-purple-600 text-white text-xs font-medium px-3 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed border border-slate-600 hover:border-purple-500"

@@ -51,14 +51,26 @@ interface MatchData {
   teams: Team[];
 }
 
+interface BackpackInfo {
+  userId: string;
+  tournamentId: string;
+  roundId: string;
+  matchId: string;
+  matchDataId: string;
+  teambackpackinfo: {
+    TeamBackPackList: any[];
+  };
+}
+
 interface UpperProps {
   tournament: Tournament;
   round?: Round | null;
   match?: Match | null;
   matchData?: MatchData | null;
+  backpackInfo?: BackpackInfo | null;
 }
 
-const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) => {
+const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData, backpackInfo }) => {
   const [localMatchData, setLocalMatchData] = useState<MatchData | null>(matchData || null);
   const [matchDataId, setMatchDataId] = useState<string | null>(matchData?._id?.toString() || null);
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
@@ -306,7 +318,7 @@ const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) =>
     }
   }, [matchData, matchDataId]);
 
-  // Get top 5 teams by alive players - recalculated on every localMatchData change
+  // Get top 5 teams by alive players
   const topTeams = useMemo(() => {
     if (!localMatchData) return [];
 
@@ -319,10 +331,8 @@ const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) =>
         const aliveCount = team.players.filter(p => !p.bHasDied).length;
         let wwcd: number;
         if (useApiHealth) {
-          // API enabled - use health sum / 4
           wwcd = Math.round(team.players.reduce((sum, p) => sum + (p.health || 0), 0) / 4);
         } else {
-          // API disabled - count alive players (not bHasDied) * 25
           wwcd = Math.round(aliveCount * 25);
         }
         return {
@@ -332,10 +342,43 @@ const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) =>
           wwcd,
         };
       })
-      .filter(team => team.aliveCount > 0) // Only teams with alive players
+      .filter(team => team.aliveCount > 0)
       .sort((a, b) => b.aliveCount - a.aliveCount)
       .slice(0, 5);
   }, [localMatchData, lastUpdateTime, round?.apiEnable]);
+
+  // Count throwables from backpack data per team slot
+  const grenadeCountsBySlot = useMemo(() => {
+    if (!backpackInfo) return {};
+
+    const counts: { [slot: number]: { stun: number; smoke: number; molotov: number; frag: number } } = {};
+
+    backpackInfo.teambackpackinfo.TeamBackPackList.forEach((player: any) => {
+      const slot = player.TeamID;
+      if (!counts[slot]) {
+        counts[slot] = { stun: 0, smoke: 0, molotov: 0, frag: 0 };
+      }
+
+      if (player['602001']) {
+        const match = player['602001'].match(/Num:(\d+)/);
+        if (match) counts[slot].stun += Number(match[1]);
+      }
+      if (player['602002']) {
+        const match = player['602002'].match(/Num:(\d+)/);
+        if (match) counts[slot].smoke += Number(match[1]);
+      }
+      if (player['602003']) {
+        const match = player['602003'].match(/Num:(\d+)/);
+        if (match) counts[slot].molotov += Number(match[1]);
+      }
+      if (player['602004']) {
+        const match = player['602004'].match(/Num:(\d+)/);
+        if (match) counts[slot].frag += Number(match[1]);
+      }
+    });
+
+    return counts;
+  }, [backpackInfo]);
 
   if (!localMatchData) {
     return (
@@ -406,6 +449,14 @@ const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) =>
             d="M297.124 120L293 151H587.845L593 120H297.124Z"
             fill="#D9D9D9"
           />
+          <image x="300" y="120" width="30" height="30" href="/theme4assets/grenade.png" style={{ filter: 'brightness(0)' }} />
+          <text x="330" y="146" fontSize="26" fill="BLACK" textAnchor="start" fontFamily='AGENCYB'>{(grenadeCountsBySlot[team.slot!] || { frag: 0 }).frag}</text>
+          <image x="370" y="120" width="30" height="30" href="/theme4assets/smoke.png" style={{ filter: 'brightness(0)' }} />
+          <text x="399" y="146" fontSize="26" fill="BLACK" textAnchor="start" fontFamily='AGENCYB'>{(grenadeCountsBySlot[team.slot!] || { smoke: 0 }).smoke}</text>
+          <image x="440" y="120" width="30" height="30" href="/theme4assets/stunt.png" style={{ filter: 'brightness(0)' }} />
+          <text x="470" y="146" fontSize="26" fill="BLACK" textAnchor="start" fontFamily='AGENCYB'>{(grenadeCountsBySlot[team.slot!] || { stun: 0 }).stun}</text>
+          <image x="510" y="120" width="30" height="30" href="/theme4assets/molotov.png" style={{ filter: 'brightness(0)' }} />
+          <text x="545" y="146" fontSize="26" fill="BLACK" textAnchor="start" fontFamily='AGENCYB'>{(grenadeCountsBySlot[team.slot!] || { molotov: 0 }).molotov}</text>
 
           <image x="313" y="60" width="50" height="50" href={team.teamLogo} />
           <text

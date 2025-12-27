@@ -11,7 +11,8 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <span className="text-xl font-bold text-white">ScoreSync</span>
+              <img src="./fusion_xgeefl.png" alt="Fusion Logo" className="w-[100px] h-[100px] mr-2 absolute left-[430px] top-[-10px]" />
+              <img src="./logo.png" alt="ScoreSync Logo" className="w-[80px] h-[80px] absolute left-[510px] top-[-4px]" />
             </div>
             <div className="hidden md:flex space-x-8">
               <a href="#home" className="text-gray-300 hover:text-purple-400 hover:scale-105 transform transition-all duration-300 font-['Bebas'] tracking-widest text-lg">Home</a>
@@ -133,9 +134,9 @@ const Home: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-4">Tournament Management</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Broadcast Management</h3>
               <p className="text-gray-400 leading-relaxed">
-                Complete tournament lifecycle management from team registration to final results and statistics.
+                Professional broadcast tools for live streaming with customizable overlays, transitions, and real-time data integration.
               </p>
             </div>
 
@@ -190,11 +191,11 @@ const Home: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-8 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_0.5s_ease-out]">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Daily</h3>
-                <div className="text-4xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$5<span className="text-lg text-gray-400">/day</span></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_0.5s_ease-out] flex flex-col justify-between">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Daily</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$8<span className="text-base text-gray-400">/day</span></div>
                 <p className="text-gray-400">Perfect for single-day events</p>
               </div>
               <ul className="space-y-4 mb-8">
@@ -202,19 +203,19 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Up to 20 teams
+                 excess to global DataBase
                 </li>
                 <li className="flex items-center text-gray-300">
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.2s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Basic themes
+                 ID expires in 24 hrs
                 </li>
                 <li className="flex items-center text-gray-300">
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.4s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Live updates
+               Support 24 / 7
                 </li>
               </ul>
               <Link
@@ -225,10 +226,10 @@ const Home: React.FC = () => {
               </Link>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-8 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_0.7s_ease-out]">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Weekly</h3>
-                <div className="text-4xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$25<span className="text-lg text-gray-400">/week</span></div>
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_0.6s_ease-out] flex flex-col justify-between">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Weekly</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$50<span className="text-base text-gray-400">/week</span></div>
                 <p className="text-gray-400">Ideal for weekend tournaments</p>
               </div>
               <ul className="space-y-4 mb-8">
@@ -236,13 +237,13 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Up to 50 teams
+                 excess to global DataBase
                 </li>
                 <li className="flex items-center text-gray-300">
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.2s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Premium themes
+             ID expires in 7 days
                 </li>
                 <li className="flex items-center text-gray-300">
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.4s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,14 +265,13 @@ const Home: React.FC = () => {
                 Get Started
               </Link>
             </div>
-
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-8 rounded-xl border-2 border-purple-500/50 relative hover:border-purple-500/80 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 animate-[slideInFromBottom_0.9s_ease-out]">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-4 py-1 rounded-full text-sm font-semibold animate-[pulse_2s_ease-in-out_infinite]">Most Popular</span>
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 rounded-xl border-2 border-purple-500/50 relative hover:border-purple-500/80 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 animate-[slideInFromBottom_0.7s_ease-out] flex flex-col justify-between">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-3 py-0.5 rounded-full text-xs font-semibold animate-[pulse_2s_ease-in-out_infinite]">Most Popular</span>
               </div>
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Monthly</h3>
-                <div className="text-4xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$79<span className="text-lg text-gray-400">/month</span></div>
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Monthly</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$80<span className="text-base text-gray-400">/month</span></div>
                 <p className="text-gray-400">For regular tournament organizers</p>
               </div>
               <ul className="space-y-4 mb-8">
@@ -279,7 +279,7 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Unlimited teams
+                  excess to global DataBase
                 </li>
                 <li className="flex items-center text-gray-300">
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.2s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,10 +314,10 @@ const Home: React.FC = () => {
               </Link>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-8 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_1.1s_ease-out]">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Yearly</h3>
-                <div className="text-4xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$699<span className="text-lg text-gray-400">/year</span></div>
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_0.8s_ease-out] flex flex-col justify-between">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Yearly</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$800<span className="text-base text-gray-400">/year</span></div>
                 <p className="text-gray-400">Best value for year-round events</p>
               </div>
               <ul className="space-y-4 mb-8">
@@ -343,7 +343,7 @@ const Home: React.FC = () => {
                   <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.6s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Dedicated account manager
+                   excess to global DataBase
                 </li>
               </ul>
               <Link
@@ -351,6 +351,86 @@ const Home: React.FC = () => {
                 className="w-full block text-center py-3 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 Contact Sales
+              </Link>
+            </div>
+
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_0.9s_ease-out] flex flex-col justify-between">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Lifetime</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$5000<span className="text-base text-gray-400"> one-time</span></div>
+                <p className="text-gray-400">Pay once, use forever</p>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Everything in Yearly
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.2s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Lifetime access
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.4s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Free updates forever
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.6s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Priority support
+                </li>
+              </ul>
+              <Link
+                to="/login"
+                className="w-full block text-center py-3 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                Buy Now
+              </Link>
+            </div>
+
+            <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-6 rounded-xl border border-slate-700/50 hover:border-purple-500/70 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 animate-[slideInFromBottom_1.0s_ease-out] flex flex-col justify-between">
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-bold text-white mb-2">Custom Overlay</h3>
+                <div className="text-3xl font-bold text-purple-400 mb-2 animate-[pulse_2s_ease-in-out_infinite]">$45<span className="text-base text-gray-400"> one-time</span></div>
+                <p className="text-gray-400">Tailored overlay integration</p>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Custom overlay watermark
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.2s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  One-time integration
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.4s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                Complete tournament theme setup
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <svg className="w-5 h-5 text-green-400 mr-3 animate-[bounce_1.6s_ease-in-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Support included
+                </li>
+              </ul>
+              <Link
+                to="/login"
+                className="w-full block text-center py-3 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                Get Custom Overlay
               </Link>
             </div>
           </div>

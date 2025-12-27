@@ -28,6 +28,7 @@ import ZoneClose from '../Themes/Theme1/on-screen/zoneClose.tsx'
 import Intro from '../Themes/Theme1/on-screen/intro.tsx'
 import MapPreview from '../Themes/Theme1/off-screen/mapPreview.tsx'
 import Slots from '../Themes/Theme1/off-screen/slots.tsx'
+import RosterShowCase from '../Themes/Theme4/off-screen/RosterShowCase.tsx'
 
 // Theme2 imports
 import Lower2 from '../Themes/Theme2/on-screen/Lower.tsx';
@@ -107,6 +108,9 @@ import ZoneClose4 from '../Themes/Theme4/on-screen/zoneClose.tsx'
 import Intro4 from '../Themes/Theme4/on-screen/intro.tsx'
 import MapPreview4 from '../Themes/Theme4/off-screen/mapPreview.tsx'
 import Slots4 from '../Themes/Theme4/off-screen/slots.tsx'
+import Mvp from '../Themes/Theme4/off-screen/mvp.tsx'
+import HighlightPoints from '../Themes/Theme4/off-screen/HighlightPoints.tsx'
+import HighlightSchedule from '../Themes/Theme4/off-screen/HighlightSchedule.tsx'
 
 
 interface Tournament {
@@ -149,10 +153,21 @@ interface OverallData {
 }
 
 interface MatchData {
-   _id: string;
-   matchId: string;
-   userId: string;
-   teams: any[];
+    _id: string;
+    matchId: string;
+    userId: string;
+    teams: any[];
+}
+
+interface BackpackInfo {
+    userId: string;
+    tournamentId: string;
+    roundId: string;
+    matchId: string;
+    matchDataId: string;
+    teambackpackinfo: {
+        TeamBackPackList: any[];
+    };
 }
 
 interface Match {
@@ -201,6 +216,10 @@ const PublicThemeRenderer: React.FC = () => {
       Intro: Intro,
       MapPreview: MapPreview,
       Slots: Slots,
+      Mvp: MatchFragrs,
+      HighlightPoints: OverallData,
+      HighlightSchedule: Schedule,
+      RosterShowCase: RosterShowCase,
     },
     Theme2: {
       Lower: Lower2,
@@ -228,6 +247,10 @@ const PublicThemeRenderer: React.FC = () => {
       Intro: Intro, // Use Theme1's Intro for Theme2
       MapPreview: MapPreview, // Use Theme1's MapPreview for Theme2
       Slots: Slots2,
+      Mvp: MatchFragrs2,
+      HighlightPoints: OverallData2,
+      HighlightSchedule: Schedule2,
+      RosterShowCase: RosterShowCase,
     },
     Theme3: {
       Lower: Lower3,
@@ -255,6 +278,10 @@ const PublicThemeRenderer: React.FC = () => {
       Intro: Intro3,
       MapPreview: MapPreview3,
       Slots: Slots3,
+      Mvp: MatchFragrs3,
+      HighlightPoints: OverallData3,
+      HighlightSchedule: Schedule3,
+      RosterShowCase: RosterShowCase,
     },
     Theme4: {
       Lower: Lower4,
@@ -282,6 +309,10 @@ const PublicThemeRenderer: React.FC = () => {
       Intro: Intro4,
       MapPreview: MapPreview4,
       Slots: Slots4,
+      Mvp: Mvp,
+      HighlightPoints: HighlightPoints,
+      HighlightSchedule: HighlightSchedule,
+      RosterShowCase: RosterShowCase,
     },
   };
 
@@ -313,6 +344,10 @@ const PublicThemeRenderer: React.FC = () => {
     Intro: IntroComp,
     MapPreview: MapPreviewComp,
     Slots: SlotsComp,
+    Mvp: MvpComp,
+    HighlightPoints: HighlightPointsComp,
+    HighlightSchedule: HighlightScheduleComp,
+    RosterShowCase: RosterShowCaseComp,
   } = activeTheme;
 
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -324,6 +359,7 @@ const PublicThemeRenderer: React.FC = () => {
   const [matchDatas, setMatchDatas] = useState<MatchData[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedScheduleMatches, setSelectedScheduleMatches] = useState<string[]>([]);
+  const [backpackInfo, setBackpackInfo] = useState<BackpackInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -335,10 +371,11 @@ const PublicThemeRenderer: React.FC = () => {
         setLoading(true);
 
         // Determine what data is needed based on the view
-        const needsOverallData = ['OverAllData', 'LiveStats', '1stRunnerUp', '2ndRunnerUp', 'EventMvp'].includes(view);
-        const needsMatches = ['OverAllData', 'Schedule', 'Lower'].includes(view);
-        const needsMatchDatas = ['OverAllData', 'Schedule'].includes(view);
-        const needsMatchData = ['Upper', 'Dom', 'Alerts', 'LiveStats', 'LiveFrags', 'MatchData', 'MatchFragrs', 'WwcdSummary', 'WwcdStats', 'playerH2H', 'mapPreview', 'slots'].includes(view);
+        const needsOverallData = ['OverAllData', 'LiveStats', '1stRunnerUp', '2ndRunnerUp', 'EventMvp', 'highlightPoints'].includes(view);
+        const needsMatches = ['OverAllData', 'Schedule', 'Lower', 'highlightPoints', 'HighlightSchedule'].includes(view);
+        const needsMatchDatas = ['OverAllData', 'Schedule', 'highlightPoints', 'HighlightSchedule'].includes(view);
+        const needsMatchData = ['Upper', 'Dom', 'Alerts', 'LiveStats', 'LiveFrags', 'MatchData', 'MatchFragrs', 'WwcdSummary', 'WwcdStats', 'playerH2H', 'mapPreview', 'slots', 'TeamH2H', 'mvp', 'RosterShowCase', 'MatchSummary'].includes(view);
+        const needsBackpackInfo = ['MatchSummary', 'Upper', 'mvp'].includes(view);
 
         // Always fetch basic data
         const basePromises: Promise<any>[] = [
@@ -390,7 +427,19 @@ const PublicThemeRenderer: React.FC = () => {
         setMatch(matchDataFetched);
 
         if (needsMatchData && matchResults[1]) {
-          setMatchData(matchResults[1].data);
+          const fetchedMatchData = matchResults[1].data;
+          setMatchData(fetchedMatchData);
+
+          // Fetch backpack info if needed
+          if (needsBackpackInfo && fetchedMatchData._id) {
+            try {
+              const backpackRes = await api.get(`public/bagPack/tournament/${tournamentId}/round/${roundId}/match/${effectiveMatchId}/matchdata/${fetchedMatchData._id}`);
+              setBackpackInfo(backpackRes.data);
+            } catch (backpackErr) {
+              console.error('Failed to fetch backpack info:', backpackErr);
+              setBackpackInfo(null);
+            }
+          }
         }
 
         // Fetch additional data in parallel
@@ -450,7 +499,7 @@ const PublicThemeRenderer: React.FC = () => {
           justifyContent: 'center',
           fontSize: '24px'
         }}>
-          Loading...
+         
         </div>
       );
     }
@@ -494,7 +543,7 @@ const PublicThemeRenderer: React.FC = () => {
       case 'Lower':
         return <LowerComp tournament={tournament} round={round} match={match} totalMatches={matches.length} />;
       case 'Upper':
-        return <UpperComp tournament={tournament} round={round} match={match} matchData={matchData} />;
+        return <UpperComp tournament={tournament} round={round} match={match} matchData={matchData} backpackInfo={backpackInfo} />;
       case 'Dom':
         return <DomComp tournament={tournament} round={round} match={match} matchData={matchData} />;
       case 'Alerts':
@@ -528,11 +577,11 @@ const PublicThemeRenderer: React.FC = () => {
         case 'EventMvp':
           return <EventMvpComp tournament={tournament} round={round} overallData={overallData} />
         case 'MatchSummary':
-          return <MatchSummaryComp tournament={tournament} round={round} match={match} />
+          return <MatchSummaryComp tournament={tournament} round={round} match={match} matchDataId={matchData?._id} backpackInfo={backpackInfo} />
         case 'playerH2H':
           return <PlayerH2HComp tournament={tournament} round={round} match={match} matchData={matchData} />
         case 'TeamH2H':
-          return <TeamH2HComp tournament={tournament} round={round} match={match} />
+          return <TeamH2HComp tournament={tournament} round={round} match={match} matchData={matchData} />
         case 'ZoneClose':
           return <ZoneCloseComp tournament={tournament} round={round} match={match} />
         case 'intro':
@@ -541,6 +590,14 @@ const PublicThemeRenderer: React.FC = () => {
           return <MapPreviewComp tournament={tournament} round={round} match={match} matchData={matchData} />
         case 'slots':
           return <SlotsComp tournament={tournament} round={round} match={match} matchData={matchData} />
+        case 'mvp':
+          return <MvpComp tournament={tournament} round={round} match={match} matchData={matchData} backpackInfo={backpackInfo} />
+        case 'highlightPoints':
+          return <HighlightPointsComp tournament={tournament} round={round} match={match} matchData={matchData} overallData={overallData} matches={matches} matchDatas={matchDatas} />
+        case 'HighlightSchedule':
+          return <HighlightScheduleComp tournament={tournament} round={round} matches={matches} matchDatas={matchDatas} selectedScheduleMatches={selectedScheduleMatchIds} matchData={matchData} />
+        case 'RosterShowCase':
+          return <RosterShowCaseComp tournament={tournament} round={round} match={match} matchData={matchData} />
       default:
         return (
           <div style={{

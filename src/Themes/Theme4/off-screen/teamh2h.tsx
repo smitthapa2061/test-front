@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 interface Tournament {
@@ -55,44 +55,21 @@ interface TeamH2HProps {
   tournament: Tournament;
   round?: Round | null;
   match?: Match | null;
+  matchData: MatchData | null;
 }
 
-const TeamH2H: React.FC<TeamH2HProps> = ({ tournament, round, match }) => {
-  const [matchData, setMatchData] = useState<MatchData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchMatchData = async () => {
-      if (!match) return;
-      try {
-        setLoading(true);
-        const url = `https://backend-prod-530t.onrender.com/api/public/matches/${match._id}/matchdata`;
-        const res = await fetch(url, { credentials: 'include' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data: MatchData = await res.json();
-        setMatchData(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch match data:', err);
-        setError('Failed to load match data');
-        setMatchData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (match?._id) fetchMatchData();
-  }, [match?._id]);
+const TeamH2H: React.FC<TeamH2HProps> = ({ tournament, round, match, matchData }) => {
 
   const topTeams = useMemo(() => {
     if (!matchData) return null;
 
     const enriched = matchData.teams.map(team => {
+            const knockouts = team.players.reduce((sum, p) => sum + Number(p.knockouts || 0), 0);
+
       const totalKills = team.players.reduce((sum, p) => sum + Number(p.killNum || 0), 0);
       const totalDamage = team.players.reduce((sum, p) => sum + Number(p.damage || 0), 0);
       const total = Number(team.placePoints || 0) + totalKills;
-      return { ...team, total, totalKills, totalDamage };
+      return { ...team, total, totalKills, totalDamage,knockouts };
     });
 
     enriched.sort((a, b) => b.total - a.total);
@@ -103,124 +80,201 @@ const TeamH2H: React.FC<TeamH2HProps> = ({ tournament, round, match }) => {
     };
   }, [matchData]);
 
-  if (loading) {
-    return (
-      <div style={{ width: '1920px', height: '1080px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'white', fontSize: '24px', fontFamily: 'Righteous' }}>Loading...</div>
-      </div>
-    );
-  }
-
-  if (error || !matchData || !topTeams?.first || !topTeams?.second) {
+  if (!matchData || !topTeams?.first || !topTeams?.second) {
     return (
       <div style={{ width: '1920px', height: '1080px',  display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'white', fontSize: '24px', fontFamily: 'Righteous' }}>{error || 'Not enough teams'}</div>
+        <div style={{ color: 'white', fontSize: '24px', fontFamily: 'Righteous' }}>Not enough teams</div>
       </div>
     );
   }
 
   const { first, second } = topTeams;
 
-  return (
-    <div style={{ width: '1920px', height: '1080px', position: 'relative', color: 'white' }}>
-      {/* Header */}
-      <motion.div
-        className="absolute z-10 top-[60px] text-[5rem] font-bebas font-[300] w-full text-center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-      >
-        <h1 className="text-white font-bold whitespace-pre text-[7rem]">TEAM HEAD TO HEAD</h1>
-        <motion.p
-          className="text-white text-[2rem] font-[Righteous] whitespace-pre p-[10px] mt-[-20px] w-[800px] mx-auto mb-[20px] "
-          style={{ background: `linear-gradient(45deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})` }}
-          animate={{ opacity: [0.9, 1, 0.9] }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        >
-            
-  {round?.roundName || '-'}  • DAY  {round?.day || '-'} • MATCH {match?.matchNo}
-        </motion.p>
-      </motion.div>
+return (
+  <div className='w-[1920px] h-[1080px] bg-green-500 flex justify-center'>
 
-      {/* VS Section */}
-      <div className="absolute top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 flex items-center gap-16">
-        {/* Team 1 */}
-        <div className="flex flex-col items-center mt-[100px]">
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-            }}
-            className="w-[600px] h-[505px] p-8 flex flex-col items-center justify-center ">
-        
-            <img src={first.teamLogo} alt={first.teamTag} className="w-[200px] h-[200px] object-contain top-[100px] absolute " />
-            <div className="text-[3rem] font-bebas text-black mb-[30px] w-[400px] flex justify-center bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700]">{first.teamName}</div>
-           
-            
-            <div className="grid grid-cols-3 gap-0 w-[600px] text-center bg-[#000000b8] h-[200px] pt-[30px] top-[400px] absolute ">
-              <div>
-                <div className="text-[5rem] font-bebas text-yellow-300">{first.totalKills}</div>
-                <div className="text-sm font-[Righteous] o">KILLS</div>
-              </div>
-              <div>
-                <div className="text-[5rem] font-bebas text-yellow-300">{first.placePoints}</div>
-                <div className="text-sm font-[Righteous] ">PLACE PTS</div>
-              </div>
-              <div>
-                <div className="text-[5rem] font-bebas text-yellow-300">{first.total}</div>
-                <div className="text-sm font-[Righteous] ">TOTAL</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className='w-[1500px] h-[300px]  absolute top-[40px] font-[AGENCYB]'>
 
-        {/* VS Badge */}
-        <div className="text-[6rem] font-bebas text-yellow-300 relative top-[100px]">VS</div>
+      <div 
+          style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+      className='text-white  text-[170px] bg-yellow-500 w-full h-[100%]'>TEAM HEAD 2 HEAD</div>
+      <div 
+      className='text-[80px] absolute top-[20px] left-[80%]'
+      style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+      >{round?.roundName}</div>
+         <div 
+      className='text-[80px] absolute top-[100px] left-[80%] w-[500px] text-black'
+     
+      >DAY {round?.day} MATCH {match?.matchNo}</div>
+    </div>
 
-      {/* Team 2 */}
-{/* Team 2 */}
-<div className="flex flex-col items-center mt-[100px]">
+<div className=' w-[63%] h-[29%] absolute top-[250px] left-[200px] flex justify-center  '>
+<div 
+  
+className='font-[AGENCYB] text-[30px] bg-white'>
+  <div 
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL ELIMS
+          <span className='text-[4rem] mt-[-20px]'>{first.totalKills}</span>
+
+  </div>
+
+  <div 
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL DAMAGE
+      <span className='text-[4rem] mt-[-20px]'>{first.totalDamage}</span>
+  </div>
+
+  <div 
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL HEALS
+      <span className='text-[4rem] mt-[-20px]'>{first.totalDamage}</span>
+  </div>
+
   <div
-    style={{
-      background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-    }}
-    className="w-[600px] h-[505px] p-8 flex flex-col items-center justify-center "
-  >
-    <img
-      src={second.teamLogo}
-      alt={second.teamTag}
-      className="w-[200px] h-[200px] object-contain top-[100px] absolute"
-    />
-    <div className="text-[3rem] font-bebas text-black mb-[30px] w-[400px] flex justify-center bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700]">
-      {second.teamName}
-    </div>
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL KNOCKS
+          <span className='text-[4rem] mt-[-20px]'>{first.knockouts}</span>
 
-    <div className="grid grid-cols-3 gap-0 w-[600px] text-center bg-[#000000b8] h-[200px] pt-[30px] top-[400px] absolute">
-      <div>
-        <div className="text-[5rem] font-bebas text-yellow-300">
-          {second.totalKills}
-        </div>
-        <div className="text-sm font-[Righteous]">KILLS</div>
-      </div>
-      <div>
-        <div className="text-[5rem] font-bebas text-yellow-300">
-          {second.placePoints}
-        </div>
-        <div className="text-sm font-[Righteous]">PLACE PTS</div>
-      </div>
-      <div>
-        <div className="text-[5rem] font-bebas text-yellow-300">
-          {second.total}
-        </div>
-        <div className="text-sm font-[Righteous]">TOTAL</div>
-      </div>
-    </div>
   </div>
 </div>
 
+<div 
+  style={{
+      backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+    }}
+className='bg-slate-400 w-[30.2%] h-[100%] absolute left-[0%] flex items-end '>
 
-      </div>
-    </div>
-  );
+<img src={first.teamLogo} alt="" className='absolute top-[100px]'/>
+  <div 
+    style={{
+      backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+    }}
+  className='bg-white w-[100%] h-[20%] border-[2px] border-solid border-white font-[AGENCYB] text-white text-[80px] text-center'>
+
+    {first.teamName}
+  </div>
+</div>
+  <div
+    className='w-[15%] h-full flex flex-col justify-between gap-2 p-2 items-center'
+    style={{
+      backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+    }}
+  >
+<img
+  src="/theme4assets/total elims.png"
+  className="w-[70%] h-[22%] object-contain filter brightness-0 invert"
+/>
+<img
+  src="/theme4assets/totaldamages.png"
+  className="w-[70%]  h-[22%] object-contain filter brightness-0 invert"
+/> 
+<img
+  src="/theme4assets/health.png"
+  className="w-[70%]  h-[22%] object-contain filter brightness-0 invert"
+/>  
+<img
+  src="/theme4assets/knoc.png"
+  className="w-[70%]  h-[22%] object-contain filter brightness-0 invert"
+/>  </div>
+<div 
+  
+className='font-[AGENCYB] text-[30px] bg-white'>
+  <div 
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL ELIMS
+          <span className='text-[4rem] mt-[-20px]'>{second.totalKills}</span>
+
+  </div>
+
+  <div 
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL DAMAGE
+      <span className='text-[4rem] mt-[-20px]'>{second.totalDamage}</span>
+  </div>
+
+  <div 
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL HEALS
+      <span className='text-[4rem] mt-[-20px]'>{second.totalDamage}</span>
+  </div>
+
+  <div
+   style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+  className='bg-white w-[200px] h-[185px] border-2 border-black flex items-center justify-center flex-col'>
+    TOTAL KNOCKS
+          <span className='text-[4rem] mt-[-20px]'>{second.knockouts}</span>
+
+  </div>
+</div>
+<div 
+  style={{
+      backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+    }}
+className='bg-slate-400 w-[30.2%] h-[100%] absolute right-[0%] flex items-end '>
+
+<img src={second.teamLogo} alt="" className='absolute top-[100px]'/>
+  <div 
+    style={{
+      backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+    }}
+  className='bg-white w-[100%] h-[20%] border-[2px] border-solid border-white font-[AGENCYB] text-white text-[80px] text-center'>
+
+    {second.teamName}
+  </div>
+</div>
+</div>
+
+      
+  </div>
+)
 };
 
 export default TeamH2H;

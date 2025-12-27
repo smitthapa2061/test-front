@@ -22,7 +22,7 @@ class SocketManager {
 
     if (!this.socket || this.socket.disconnected) {
       console.log('SocketManager: Creating new socket connection');
-      const wsUrl ="https://test-back-hy95.onrender.com";
+      const wsUrl ="http://localhost:3000";
       this.socket = io(wsUrl, {
         transports: ["websocket"],
         withCredentials: true,
