@@ -117,7 +117,24 @@ const MatchDataViewer: React.FC = () => {
 
     console.log('MatchDataController: Setting up socket listeners');
 
-    // 🔹 Handle team-level updates (placePoints, etc.)
+    const handleLiveMatchUpdate = (data: any) => {
+      if (!data) return;
+
+      const incomingMatchId = typeof data.matchId === 'object' && data.matchId?._id ? data.matchId._id : data.matchId;
+      if (incomingMatchId?.toString?.() !== matchId?.toString?.()) return;
+
+      setMatchData({
+        ...data,
+        teams: Array.isArray(data?.teams)
+          ? data.teams.map((team: any) => ({
+              ...team,
+              _id: team?._id || team?.teamId || null,
+              placePoints: team.placePoints ?? 0,
+            }))
+          : [],
+      });
+    };
+
     const handleTeamUpdate = (data: any) => {
       setMatchData((prevData: any) => {
         if (!prevData?.teams) return prevData;
@@ -148,7 +165,6 @@ const MatchDataViewer: React.FC = () => {
       });
     };
 
-    // 🔹 Handle player-level updates (killNum, bHasDied, etc.)
     const handlePlayerUpdate = (data: any) => {
       setMatchData((prevData: any) => {
         if (!prevData?.teams) return prevData;
@@ -172,19 +188,20 @@ const MatchDataViewer: React.FC = () => {
     };
 
     // 🔹 Register socket listeners
+    socket.on('liveMatchUpdate', handleLiveMatchUpdate);
     socket.on('matchDataUpdated', handleTeamUpdate);
     socket.on('playerStatsUpdated', handlePlayerUpdate);
 
     // 🔹 Cleanup on unmount
     return () => {
       console.log('MatchDataController: Cleaning up socket listeners');
+      socket.off('liveMatchUpdate', handleLiveMatchUpdate);
       socket.off('matchDataUpdated', handleTeamUpdate);
       socket.off('playerStatsUpdated', handlePlayerUpdate);
       // Notify socket manager that this component is done with the socket
       SocketManager.getInstance().disconnect();
     };
   }, []);
-
 
   // Create batchers for different types of updates with proper accumulators
   const killUpdateBatcher = useRef(new UpdateBatcher<{ change: number }>(
