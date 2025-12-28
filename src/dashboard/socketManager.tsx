@@ -19,11 +19,10 @@ class SocketManager {
 
   connect(): Socket {
     this.connectionCount++;
-
+    
     if (!this.socket || this.socket.disconnected) {
       console.log('SocketManager: Creating new socket connection');
-      const wsUrl ="https://test-back-hy95.onrender.com";
-      this.socket = io(wsUrl, {
+      this.socket = io( "https://test-back-iuow.onrender.com", {
         transports: ["websocket"],
         withCredentials: true,
         reconnection: true,

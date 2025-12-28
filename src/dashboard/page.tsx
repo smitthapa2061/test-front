@@ -77,6 +77,9 @@ const Dashboard: React.FC = () => {
     }
     setUser(userData);
 
+    // Join user room for live updates
+    socket.emit('join', userData._id);
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const key = `${CACHE_KEY_BASE}_${userData._id}`;
 
