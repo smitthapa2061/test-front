@@ -347,7 +347,7 @@ const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) =>
 
   // Upper component UI
 return (
-  <div className="w-[1920px] h-[1080px] relative bg-black">
+  <div className="w-[1920px] h-[1080px] relative ">
     {/* Horizontal Team Cards */}
     {topTeams.map((team, index) => {
       const CARD_W = 330;

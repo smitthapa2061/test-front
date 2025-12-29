@@ -91,18 +91,18 @@ const TeamH2H: React.FC<TeamH2HProps> = ({ tournament, round, match, matchData }
   const { first, second } = topTeams;
 
 return (
-  <div className='w-[1920px] h-[1080px] bg-green-500 flex justify-center'>
+  <div className='w-[1920px] h-[1080px] flex justify-center'>
 
     <div className='w-[1500px] h-[300px]  absolute top-[40px] font-[AGENCYB]'>
 
-      <div 
+      <div
           style={{
             backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}
-      className='text-white  text-[170px] bg-yellow-500 w-full h-[100%]'>TEAM HEAD 2 HEAD</div>
-      <div 
+      className='text-[170px] w-full h-[200px]'>TEAM HEAD 2 HEAD</div>
+      <div
       className='text-[80px] absolute top-[20px] left-[80%]'
       style={{
             backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
@@ -110,15 +110,19 @@ return (
             WebkitTextFillColor: 'transparent',
           }}
       >{round?.roundName}</div>
-         <div 
-      className='text-[80px] absolute top-[100px] left-[80%] w-[500px] text-black'
-     
+         <div
+      className='text-[80px] absolute top-[100px] left-[80%] w-[500px]'
+      style={{
+            backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
       >DAY {round?.day} MATCH {match?.matchNo}</div>
     </div>
 
-<div className=' w-[63%] h-[29%] absolute top-[250px] left-[200px] flex justify-center  '>
-<div 
-  
+<div className=' w-[1920px] h-[300px%] absolute top-[250px] left-[200px] flex justify-center  '>
+<div
+
 className='font-[AGENCYB] text-[30px] bg-white'>
   <div 
    style={{
@@ -167,24 +171,24 @@ className='font-[AGENCYB] text-[30px] bg-white'>
   </div>
 </div>
 
-<div 
-  style={{
+<div
+   style={{
       backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
     }}
-className='bg-slate-400 w-[30.2%] h-[100%] absolute left-[0%] flex items-end '>
+className='w-[590px] h-[100%] absolute left-[0%] flex items-end '>
 
-<img src={first.teamLogo} alt="" className='absolute top-[100px]'/>
-  <div 
+<img src={first.teamLogo} alt="" className='absolute top-[0px]'/>
+  <div
     style={{
       backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
     }}
-  className='bg-white w-[100%] h-[20%] border-[2px] border-solid border-white font-[AGENCYB] text-white text-[80px] text-center'>
+  className='w-[100%] h-[20%] border-[2px] border-solid border-white font-[AGENCYB] text-white text-[80px] text-center'>
 
     {first.teamName}
   </div>
 </div>
   <div
-    className='w-[15%] h-full flex flex-col justify-between gap-2 p-2 items-center'
+    className='w-[15%] h-[738px] flex flex-col justify-between gap-2 p-2 items-center'
     style={{
       backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
     }}
@@ -258,9 +262,9 @@ className='font-[AGENCYB] text-[30px] bg-white'>
   style={{
       backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
     }}
-className='bg-slate-400 w-[30.2%] h-[100%] absolute right-[0%] flex items-end '>
+className='bg-slate-400 w-[600px] h-[100%] absolute right-[0%] flex items-end '>
 
-<img src={second.teamLogo} alt="" className='absolute top-[100px]'/>
+<img src={second.teamLogo} alt="" className='absolute top-[0px]'/>
   <div 
     style={{
       backgroundImage: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, #000)`,
@@ -278,3 +282,4 @@ className='bg-slate-400 w-[30.2%] h-[100%] absolute right-[0%] flex items-end '>
 };
 
 export default TeamH2H;
+
