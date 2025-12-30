@@ -359,7 +359,7 @@ const topPlayers = useMemo(() => {
 
                   {round?.roundName}
                 </div>
-                <div className='text-white text-[80px] font-[AGENCYB] absolute top-[50px] w-[500px]'>
+                <div className='text-black text-[80px] font-[AGENCYB] absolute top-[50px] w-[500px]'>
                   DAY {round?.day} MATCH {match?.matchNo}
                 </div>
               </div>

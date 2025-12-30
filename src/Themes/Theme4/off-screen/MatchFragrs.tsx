@@ -199,7 +199,7 @@ const MatchFragrs: React.FC<MatchFragrsProps> = ({ tournament, round, match, mat
         className="text-[78px] font-[agencyb] absolute left-[1340px] top-[0px]">
         {round?.roundName}
       </div>
-      <div className='text-black w-[400px] h-[200px] text-[78px] font-[agencyb] absolute left-[1320px] top-[70px]'>
+      <div className='text-black w-[480px] h-[200px] text-[78px] font-[agencyb] absolute left-[1320px] top-[70px]'>
         DAY {round?.day} MATCH {match?.matchNo}
       </div>
 
