@@ -222,6 +222,9 @@ const WwcdSummary: React.FC<WwcdSummaryProps> = ({ tournament, round, match, mat
     .sort((a, b) => (b.killNum || 0) - (a.killNum || 0)) // Sort by kills
     .slice(0, 4); // Get top 4 players
 
+  // Debug: Log player data
+  console.log('Winner:', winner?.teamTag, 'Top players:', topPlayers?.length, topPlayers?.map(p => ({ name: p.playerName, pic: p.picUrl })));
+
   return (
   <div className=' w-[1920px] h-[1080px] '>
     <div
@@ -261,30 +264,7 @@ const WwcdSummary: React.FC<WwcdSummaryProps> = ({ tournament, round, match, mat
        </div>
         <div className='text-black text-[79px] font-[agencyb]  text-center w-full'>{winner.teamTag}</div>
       </div>
-        {topPlayers && topPlayers.length > 0 && (
-     <div className='flex justify-center items-end absolute top-[350px] w-full gap-[0px] left-[-300px]'>
-       {topPlayers.slice(0, 4).map((player, index) => (
-         <div key={player._id || index} className='flex flex-col items-center justify-center ml-[20px]'>
-           <img
-             src={player.picUrl || "/def_char.png"}
-             alt={player.playerName || "Player"}
-             className='w-[300px] h-[400px] object-cover rounded-lg shadow-lg bg-[#000000c5]'
-           />
-           <div 
-              style={{
-   backgroundImage: `linear-gradient(135deg, ${
- tournament.secondaryColor || '#000'
-}, #000)`,
- 
- }}
-           
-           className='text-white text-[29px] font-[agencyb]  text-center w-full '>
-             {player.playerName.toUpperCase()}
-           </div>
-         </div>
-       ))}
-     </div>
-   )}
+     
    <div
     key={winner?._id || winner?.teamId}
      style={{
@@ -304,7 +284,33 @@ const WwcdSummary: React.FC<WwcdSummaryProps> = ({ tournament, round, match, mat
    </div>
    
    {/* Player images - 4 players with proper gaps */}
-   
+      {/* Debug info */}
+      <div className=" top-[300px] left-[-400px] text-white text-sm z-50 ">Debug: {topPlayers?.length || 0} players found</div>
+      
+      {topPlayers && topPlayers.length > 0 && (
+     <div className='flex justify-center items-end absolute top-[350px]  left-[490px]  w-[900px] h-[500px]'>
+       {topPlayers.slice(0, 4).map((player, index) => (
+         <div key={player._id || index} className='flex flex-col items-center justify-center   w-[500px] h-[400px] ml-[10px]'>
+           <img
+             src={player.picUrl || "/def_char.png"}
+             alt={player.playerName || "Player"}
+             className='w-[600px] h-[250px]  bg-gray-800 z-20  '
+           />
+           <div 
+              style={{
+   backgroundImage: `linear-gradient(135deg, ${
+ tournament.secondaryColor || '#000'
+}, #000)`,
+ 
+ }}
+           
+           className='text-white text-[29px] font-[agencyb]  text-center w-full '>
+             {player.playerName.toUpperCase()}
+           </div>
+         </div>
+       ))}
+     </div>
+   )}
   </div>
   );
 };
