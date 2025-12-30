@@ -94,6 +94,7 @@ const TopFragger: React.FC<TopFraggerProps> = ({ tournament, round }) => {
   const [matchDatas, setMatchDatas] = useState<MatchData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [playerPhotos, setPlayerPhotos] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -269,6 +270,50 @@ const TopFragger: React.FC<TopFraggerProps> = ({ tournament, round }) => {
     return sorted.slice(0, 5);
   }, [overallData, matchDatas]);
 
+  // Extract player photos from match data
+  useEffect(() => {
+    if (!matchDatas || matchDatas.length === 0) {
+      console.log('EventMvp: No matchDatas available');
+      return;
+    }
+
+    try {
+      console.log('EventMvp: Processing matchDatas for player photos', matchDatas);
+      
+      // Create a map of player uId to their photo URL from match data
+      const photosMap: Record<string, string> = {};
+      
+      matchDatas.forEach(matchData => {
+        if (!matchData.teams || matchData.teams.length === 0) {
+          console.log('EventMvp: No teams found in matchData');
+          return;
+        }
+        
+        matchData.teams.forEach(team => {
+          if (!team.players || team.players.length === 0) {
+            console.log(`EventMvp: No players found in team ${team.teamId}`);
+            return;
+          }
+          
+          team.players.forEach(player => {
+            if (player.picUrl && player.uId) {
+              photosMap[player.uId] = player.picUrl;
+              console.log(`EventMvp: Found photo for player uId ${player.uId}: ${player.picUrl}`);
+            } else {
+              console.log(`EventMvp: No picUrl or uId for player ${player._id}`);
+            }
+          });
+        });
+      });
+      
+      console.log('EventMvp: Player photos map:', photosMap);
+      setPlayerPhotos(photosMap);
+    } catch (err) {
+      console.error('Failed to extract player photos from match data:', err);
+      setPlayerPhotos({});
+    }
+  }, [matchDatas]);
+
   const topPlayer = topPlayers[0]; // first player after sorting
 
   const statBoxes: StatBoxData[] = [
@@ -405,7 +450,7 @@ const TopFragger: React.FC<TopFraggerProps> = ({ tournament, round }) => {
             className="absolute left-[-160px] top-[280px]"
             style={{ width: "1000px", height: "800px" }}>
             <img
-              src={topPlayers[0].picUrl || "/def_char.png"}
+              src={playerPhotos[topPlayers[0].uId] || topPlayers[0].picUrl || "/def_char.png"}
               alt={topPlayers[0].playerName || "Player"}
               style={{ width: "850px", height: "800px"}} />
           </div>

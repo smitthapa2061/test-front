@@ -70,15 +70,16 @@ interface OverallData {
 interface ChampionsProps {
   tournament: Tournament;
   round?: Round | null;
+  matchData?: MatchData | null;
 }
 
-const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
+const Champions: React.FC<ChampionsProps> = ({ tournament, round, matchData }) => {
   const [overallData, setOverallData] = useState<OverallData | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchDatas, setMatchDatas] = useState<MatchData[]>([]);
-  const [playerStats, setPlayerStats] = useState<Record<string, { killNum: number }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [playerPhotos, setPlayerPhotos] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchOverall = async () => {
@@ -138,43 +139,54 @@ const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
     return { ...first, leadOverNext } as (Team & { total: number; totalKills: number; leadOverNext: number });
   }, [overallData]);
 
-  // Fetch player stats by UID
+  // Extract player photos from match data
   useEffect(() => {
-    const fetchPlayerStats = async () => {
-      if (!champion || !round) return;
-
-      try {
-        // Get player stats for all players in the champion team
-        const playerIds = champion.players.map(p => p._id);
-        
-        // Fetch player stats from API
-        const statsPromises = playerIds.map(playerId =>
-          api.get(`/public/players/${playerId}/stats`)
-        );
-        
-        const statsResponses = await Promise.all(statsPromises);
-        
-        // Create a map of player ID to their stats
-        const statsMap: Record<string, { killNum: number }> = {};
-        statsResponses.forEach((response, index) => {
-          const playerId = playerIds[index];
-          statsMap[playerId] = {
-            killNum: response.data.killNum || 0
-          };
-        });
-        
-        setPlayerStats(statsMap);
-      } catch (err) {
-        console.error('Failed to fetch player stats:', err);
-      }
-    };
-
-    if (champion && round?._id) {
-      fetchPlayerStats();
+    if (!matchData) {
+      console.log('Champions: No matchData available');
+      return;
     }
-  }, [champion, round?._id]);
+
+    try {
+      console.log('Champions: Processing matchData for player photos', matchData);
+      
+      // Create a map of player uId to their photo URL from match data
+      const photosMap: Record<string, string> = {};
+      
+      if (!matchData.teams || matchData.teams.length === 0) {
+        console.log('Champions: No teams found in matchData');
+        setPlayerPhotos({});
+        return;
+      }
+      
+      matchData.teams.forEach(team => {
+        if (!team.players || team.players.length === 0) {
+          console.log(`Champions: No players found in team ${team.teamId}`);
+          return;
+        }
+        
+        team.players.forEach(player => {
+          if (player.picUrl && player.uId) {
+            photosMap[player.uId] = player.picUrl;
+            console.log(`Champions: Found photo for player uId ${player.uId}: ${player.picUrl}`);
+          } else {
+            console.log(`Champions: No picUrl or uId for player ${player._id}`);
+          }
+        });
+      });
+      
+      console.log('Champions: Player photos map:', photosMap);
+      setPlayerPhotos(photosMap);
+    } catch (err) {
+      console.error('Failed to extract player photos from match data:', err);
+      setPlayerPhotos({});
+    }
+  }, [matchData]);
+
+
+  
 
   if (loading) {
+    console.log('Champions: Loading state');
     return (
       <div className="w-[1920px] h-[1080px] flex items-center justify-center">
         <div className="text-white text-2xl font-[Righteous]">Loading...</div>
@@ -183,6 +195,7 @@ const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
   }
 
   if (error || !overallData || !champion) {
+    console.log('Champions: Error or no data state -', error || 'No overall data available');
     return (
       <div className="w-[1920px] h-[1080px] flex items-center justify-center">
         <div className="text-white text-2xl font-[Righteous]">{error || 'No overall data available'}</div>
@@ -255,7 +268,7 @@ const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
             transition={{ duration: 0.6 }}
           >
             <img
-              src={player.picUrl || '/def_char.png'}
+              src={playerPhotos[player.uId] || player.picUrl || '/def_char.png'}
               alt={player.playerName}
               className="w-[620px] h-[420px] object-cover    top-[16px] "
             />

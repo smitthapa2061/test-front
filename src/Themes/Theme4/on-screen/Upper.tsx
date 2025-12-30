@@ -57,9 +57,10 @@ interface UpperProps {
   round?: Round | null;
   match?: Match | null;
   matchData?: MatchData | null;
+  backpackInfo?: any | null;
 }
 
-const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData }) => {
+const Upper: React.FC<UpperProps> = ({ tournament, round, match, matchData, backpackInfo }) => {
   const [localMatchData, setLocalMatchData] = useState<MatchData | null>(matchData || null);
   const [matchDataId, setMatchDataId] = useState<string | null>(matchData?._id?.toString() || null);
   const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());

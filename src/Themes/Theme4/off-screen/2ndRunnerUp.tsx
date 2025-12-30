@@ -70,13 +70,14 @@ interface OverallData {
 interface ChampionsProps {
   tournament: Tournament;
   round?: Round | null;
+  matchData?: MatchData | null;
 }
 
-const SecondRunnerUp: React.FC<ChampionsProps> = ({ tournament, round }) => {
+const SecondRunnerUp: React.FC<ChampionsProps> = ({ tournament, round, matchData }) => {
   const [overallData, setOverallData] = useState<OverallData | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchDatas, setMatchDatas] = useState<MatchData[]>([]);
-  const [playerStats, setPlayerStats] = useState<Record<string, { killNum: number }>>({});
+  const [playerPhotos, setPlayerPhotos] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -138,41 +139,50 @@ const SecondRunnerUp: React.FC<ChampionsProps> = ({ tournament, round }) => {
     return { ...third, leadOverNext } as (Team & { total: number; totalKills: number; leadOverNext: number });
   }, [overallData]);
 
-  // Fetch player stats by UID
+  // Extract player photos from match data
   useEffect(() => {
-    const fetchPlayerStats = async () => {
-      if (!thirdPlace || !round) return;
-
-      try {
-        // Get player stats for all players in the third place team
-        const playerIds = thirdPlace.players.map((p: Player) => p._id);
-         
-        // Fetch player stats from API
-        const statsPromises = playerIds.map((playerId: string) =>
-          api.get(`/public/players/${playerId}/stats`)
-        );
-         
-        const statsResponses = await Promise.all(statsPromises);
-         
-        // Create a map of player ID to their stats
-        const statsMap: Record<string, { killNum: number }> = {};
-        statsResponses.forEach((response: any, index: number) => {
-          const playerId = playerIds[index];
-          statsMap[playerId] = {
-            killNum: response.data.killNum || 0
-          };
-        });
-         
-        setPlayerStats(statsMap);
-      } catch (err) {
-        console.error('Failed to fetch player stats:', err);
-      }
-    };
-
-    if (thirdPlace && round?._id) {
-      fetchPlayerStats();
+    if (!matchData) {
+      console.log('SecondRunnerUp: No matchData available');
+      return;
     }
-  }, [thirdPlace, round?._id]);
+
+    try {
+      console.log('SecondRunnerUp: Processing matchData for player photos', matchData);
+      
+      // Create a map of player uId to their photo URL from match data
+      const photosMap: Record<string, string> = {};
+      
+      if (!matchData.teams || matchData.teams.length === 0) {
+        console.log('SecondRunnerUp: No teams found in matchData');
+        setPlayerPhotos({});
+        return;
+      }
+      
+      matchData.teams.forEach(team => {
+        if (!team.players || team.players.length === 0) {
+          console.log(`SecondRunnerUp: No players found in team ${team.teamId}`);
+          return;
+        }
+        
+        team.players.forEach(player => {
+          if (player.picUrl && player.uId) {
+            photosMap[player.uId] = player.picUrl;
+            console.log(`SecondRunnerUp: Found photo for player uId ${player.uId}: ${player.picUrl}`);
+          } else {
+            console.log(`SecondRunnerUp: No picUrl or uId for player ${player._id}`);
+          }
+        });
+      });
+      
+      console.log('SecondRunnerUp: Player photos map:', photosMap);
+      setPlayerPhotos(photosMap);
+    } catch (err) {
+      console.error('Failed to extract player photos from match data:', err);
+      setPlayerPhotos({});
+    }
+  }, [matchData]);
+
+
 
   if (loading) {
     return (
@@ -255,7 +265,7 @@ const SecondRunnerUp: React.FC<ChampionsProps> = ({ tournament, round }) => {
             transition={{ duration: 0.6 }}
           >
             <img
-              src={player.picUrl || '/def_char.png'}
+              src={playerPhotos[player.uId] || player.picUrl || '/def_char.png'}
               alt={player.playerName}
               className="w-[620px] h-[420px] object-cover    top-[16px] "
             />

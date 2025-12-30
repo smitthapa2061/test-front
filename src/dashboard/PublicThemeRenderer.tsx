@@ -374,7 +374,7 @@ const PublicThemeRenderer: React.FC = () => {
         const needsOverallData = ['OverAllData', 'LiveStats', '1stRunnerUp', '2ndRunnerUp', 'EventMvp', 'highlightPoints'].includes(view);
         const needsMatches = ['OverAllData', 'Schedule', 'Lower', 'highlightPoints', 'HighlightSchedule'].includes(view);
         const needsMatchDatas = ['OverAllData', 'Schedule', 'highlightPoints', 'HighlightSchedule'].includes(view);
-        const needsMatchData = ['Upper', 'Dom', 'Alerts', 'LiveStats', 'LiveFrags', 'MatchData', 'MatchFragrs', 'WwcdSummary', 'WwcdStats', 'playerH2H', 'mapPreview', 'slots', 'TeamH2H', 'mvp', 'RosterShowCase', 'MatchSummary'].includes(view);
+        const needsMatchData = ['Upper', 'Dom', 'Alerts', 'LiveStats', 'LiveFrags', 'MatchData', 'MatchFragrs', 'WwcdSummary', 'WwcdStats', 'playerH2H', 'mapPreview', 'slots', 'TeamH2H', 'mvp', 'RosterShowCase', 'MatchSummary', 'Champions','1stRunnerUp', '2ndRunnerUp', 'EventMvp',].includes(view);
         const needsBackpackInfo = ['MatchSummary', 'Upper', 'mvp'].includes(view);
 
         // Always fetch basic data
@@ -569,7 +569,7 @@ const PublicThemeRenderer: React.FC = () => {
         case 'CommingUpNext':
         return <CommingUpNextComp tournament={tournament} round={round} match={match} />
         case 'Champions':
-          return <ChampionsComp tournament={tournament} round={round}  />
+          return <ChampionsComp tournament={tournament} round={round} matchData={matchData} />
         case '1stRunnerUp':
           return <FirstRunnerUpComp tournament={tournament} round={round} overallData={overallData} />
         case '2ndRunnerUp':

@@ -70,15 +70,16 @@ interface OverallData {
 interface ChampionsProps {
   tournament: Tournament;
   round?: Round | null;
+  matchData?: MatchData | null;
 }
 
-const FirstRunnerUp: React.FC<ChampionsProps> = ({ tournament, round }) => {
+const FirstRunnerUp: React.FC<ChampionsProps> = ({ tournament, round, matchData }) => {
   const [overallData, setOverallData] = useState<OverallData | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchDatas, setMatchDatas] = useState<MatchData[]>([]);
-  const [playerStats, setPlayerStats] = useState<Record<string, { killNum: number }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [playerPhotos, setPlayerPhotos] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchOverall = async () => {
@@ -138,41 +139,89 @@ const FirstRunnerUp: React.FC<ChampionsProps> = ({ tournament, round }) => {
     return { ...second, leadOverNext } as (Team & { total: number; totalKills: number; leadOverNext: number });
   }, [overallData]);
 
-  // Fetch player stats by UID
+  // Extract player photos from match data
   useEffect(() => {
-    const fetchPlayerStats = async () => {
-      if (!secondPlace || !round) return;
-
-      try {
-        // Get player stats for all players in the second place team
-        const playerIds = secondPlace.players.map((p: Player) => p._id);
-         
-        // Fetch player stats from API
-        const statsPromises = playerIds.map((playerId: string) =>
-          api.get(`/public/players/${playerId}/stats`)
-        );
-         
-        const statsResponses = await Promise.all(statsPromises);
-         
-        // Create a map of player ID to their stats
-        const statsMap: Record<string, { killNum: number }> = {};
-        statsResponses.forEach((response: any, index: number) => {
-          const playerId = playerIds[index];
-          statsMap[playerId] = {
-            killNum: response.data.killNum || 0
-          };
-        });
-         
-        setPlayerStats(statsMap);
-      } catch (err) {
-        console.error('Failed to fetch player stats:', err);
-      }
-    };
-
-    if (secondPlace && round?._id) {
-      fetchPlayerStats();
+    console.log('FirstRunnerUp: Photo extraction useEffect triggered');
+    console.log('FirstRunnerUp: matchData available:', !!matchData);
+    console.log('FirstRunnerUp: matchData teams count:', matchData?.teams?.length || 0);
+    
+    if (!matchData) {
+      console.log('FirstRunnerUp: No matchData available - this is the issue!');
+      setPlayerPhotos({});
+      return;
     }
-  }, [secondPlace, round?._id]);
+
+    try {
+      console.log('FirstRunnerUp: Processing matchData for player photos');
+      
+      // Create a map of player uId to their photo URL from match data
+      const photosMap: Record<string, string> = {};
+      
+      if (!matchData.teams || matchData.teams.length === 0) {
+        console.log('FirstRunnerUp: No teams found in matchData');
+        setPlayerPhotos({});
+        return;
+      }
+      
+      let totalPlayersProcessed = 0;
+      let playersWithValidData = 0;
+      
+      matchData.teams.forEach((team, teamIndex) => {
+        console.log(`FirstRunnerUp: Processing team ${teamIndex}:`, {
+          teamId: team.teamId,
+          teamName: team.teamName,
+          playersCount: team.players?.length || 0
+        });
+        
+        if (!team.players || team.players.length === 0) {
+          console.log(`FirstRunnerUp: No players found in team ${team.teamId}`);
+          return;
+        }
+        
+        team.players.forEach((player, playerIndex) => {
+          totalPlayersProcessed++;
+          
+          // Debug player data structure
+          if (playerIndex < 2) { // Only log first 2 players per team to avoid spam
+            console.log(`FirstRunnerUp: Player ${playerIndex} data:`, {
+              _id: player._id,
+              uId: player.uId,
+              picUrl: player.picUrl,
+              playerName: player.playerName,
+              hasPicUrl: !!player.picUrl,
+              hasUId: !!player.uId
+            });
+          }
+          
+          // Check for valid photo data
+          if (player.picUrl && player.uId) {
+            photosMap[player.uId] = player.picUrl;
+            playersWithValidData++;
+            console.log(`FirstRunnerUp: Added photo mapping - uId: ${player.uId} -> picUrl: ${player.picUrl}`);
+          } else {
+            console.log(`FirstRunnerUp: Skipping player ${player._id} - missing data:`, {
+              picUrl: player.picUrl || 'MISSING',
+              uId: player.uId || 'MISSING'
+            });
+          }
+        });
+      });
+      
+      console.log('FirstRunnerUp: Summary:', {
+        totalPlayersProcessed,
+        playersWithValidData,
+        photosMapEntries: Object.keys(photosMap).length,
+        photosMap
+      });
+      
+      setPlayerPhotos(photosMap);
+    } catch (err) {
+      console.error('Failed to extract player photos from match data:', err);
+      setPlayerPhotos({});
+    }
+  }, [matchData]);
+
+
 
   if (loading) {
     return (
@@ -255,9 +304,17 @@ const FirstRunnerUp: React.FC<ChampionsProps> = ({ tournament, round }) => {
             transition={{ duration: 0.6 }}
           >
             <img
-              src={player.picUrl || '/def_char.png'}
+              src={playerPhotos[player.uId] || player.picUrl || '/def_char.png'}
               alt={player.playerName}
               className="w-[620px] h-[420px] object-cover    top-[16px] "
+              onLoad={() => console.log('FirstRunnerUp: Image loaded successfully', {
+                playerName: player.playerName,
+                src: playerPhotos[player.uId] || player.picUrl || '/def_char.png'
+              })}
+              onError={() => console.log('FirstRunnerUp: Image failed to load', {
+                playerName: player.playerName,
+                attemptedSrc: playerPhotos[player.uId] || player.picUrl || '/def_char.png'
+              })}
             />
             <div
               style={{
