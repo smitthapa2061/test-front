@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../../login/api.tsx';
+import { motion } from 'framer-motion';
 
 interface Tournament {
   _id: string;
@@ -14,14 +15,25 @@ interface Tournament {
 interface Round {
   _id: string;
   roundName: string;
+  apiEnable?: boolean;
   day?: string;
 }
 
 interface Player {
   _id: string;
+  uId: string;
   playerName: string;
-  killNum?: number;
+  killNum: number;
+  bHasDied: boolean;
   picUrl?: string;
+  damage?: string;
+  survivalTime?: number;
+  assists?: number;
+
+  // Aggregated stats
+  health: number;
+  healthMax: number;
+  liveState: number;
 }
 
 interface Team {
@@ -33,6 +45,18 @@ interface Team {
   placePoints: number;
   wwcd?: number;
   players: Player[];
+  matchesPlayed?: number;
+}
+
+interface Match {
+  _id: string;
+  matchName?: string;
+  matchNo?: number;
+}
+
+interface MatchData {
+  _id: string;
+  teams: Team[];
 }
 
 interface OverallData {
@@ -50,6 +74,9 @@ interface ChampionsProps {
 
 const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
   const [overallData, setOverallData] = useState<OverallData | null>(null);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [matchDatas, setMatchDatas] = useState<MatchData[]>([]);
+  const [playerStats, setPlayerStats] = useState<Record<string, { killNum: number }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,6 +138,42 @@ const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
     return { ...first, leadOverNext } as (Team & { total: number; totalKills: number; leadOverNext: number });
   }, [overallData]);
 
+  // Fetch player stats by UID
+  useEffect(() => {
+    const fetchPlayerStats = async () => {
+      if (!champion || !round) return;
+
+      try {
+        // Get player stats for all players in the champion team
+        const playerIds = champion.players.map(p => p._id);
+        
+        // Fetch player stats from API
+        const statsPromises = playerIds.map(playerId =>
+          api.get(`/public/players/${playerId}/stats`)
+        );
+        
+        const statsResponses = await Promise.all(statsPromises);
+        
+        // Create a map of player ID to their stats
+        const statsMap: Record<string, { killNum: number }> = {};
+        statsResponses.forEach((response, index) => {
+          const playerId = playerIds[index];
+          statsMap[playerId] = {
+            killNum: response.data.killNum || 0
+          };
+        });
+        
+        setPlayerStats(statsMap);
+      } catch (err) {
+        console.error('Failed to fetch player stats:', err);
+      }
+    };
+
+    if (champion && round?._id) {
+      fetchPlayerStats();
+    }
+  }, [champion, round?._id]);
+
   if (loading) {
     return (
       <div className="w-[1920px] h-[1080px] flex items-center justify-center">
@@ -128,125 +191,89 @@ const Champions: React.FC<ChampionsProps> = ({ tournament, round }) => {
   }
 
   return (
-    <div className="w-[1920px] h-[1080px] relative  text-white ">
-      {/* Header */}
-      <div className="absolute top-[80px] left-[80px] flex">
-      
-        <div 
-         style={{
-            
-            backgroundImage: `linear-gradient(to left, transparent, ${tournament.primaryColor})`,
-            clipPath: "polygon(30px 0%, 100% 0%, 100% 100%, 30px 100%, 0% 50%)",
-          }}
-        className="text-[2rem] font-[Righteous] pl-[40px] flex items-center h-[70px] mt-[10px] ml-[50px]">
-        <span className='text-yellow-300 pr-[10px]'> CHAMPIONS</span> OF {tournament.tournamentName} -  {round?.roundName}
-        </div>
+    <div
+      className="w-[1920px] h-[1080px] text-white relative font-bebas-neue"
+    >
+      {/* Champions Title */}
+      <div
+        className="text-[140px] absolute top-[0px]  left-[670px]  font-[payBack]"
+        style={{
+          backgroundImage: `linear-gradient(to right, ${tournament.primaryColor}, ${tournament.secondaryColor})`,
+          WebkitBackgroundClip: "text",
+          color: "transparent",
+        }}
+      >
+        CHAMPIONS
       </div>
 
+      {/* Champion Team Info */}
       <div 
-      
-      className='absolute top-[750px] left-[70px] flex justify-center w-full h-full z-10'>
-<div
- style={{
+      style={{
+          backgroundImage: `linear-gradient(to right, ${tournament.primaryColor}, ${"#000000"})`,
+              }}
+      className="top-[180px] flex justify-center items-center absolute left-[700px] font-[200] bg-white text-white pr-[25px]">
+        <img
+          src={champion.teamLogo || '/def_logo.png'}
+          alt="Team Logo"
+          className="w-[120px] h-[120px] object-contain relative top-[-6px] mr-6"
+        />
+        <div className="text-[64px] font-[AGENCYB]  ">{champion.teamName}</div>
+      </div>
 
-    background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-    
-    
-    }}
-className='bg-white w-[700px] h-[120px] skew-x-[20deg]'>
-<div className='bg-white w-[25%] h-full'>
-</div>
+      <div
+        style={{
+          backgroundImage: `linear-gradient(to right, ${tournament.primaryColor}, ${"#000000"})`,
+        }}
+        className="text-[52px] text-white relative top-[950px] w-[900px] text-center left-[500px]  font-[AGENCYB]"
+      >
+     WWCD {champion.wwcd} -- KILLS {champion.totalKills}  -- {champion.placePoints} PLACE --  {champion.total} TOTAL
+      </div>
 
-</div>
-<div className='font-bebas font-[300] text-[3rem] absolute top-[-10px] left-[640px] w-[100%] h-[100%]' >
-    
-    <img src={champion.teamLogo} alt="" className='w-[130px] h-[130px] object-contain'/>
-    
-    </div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[840px] text-white ' > 
-   {champion.teamName}
-    </div>
-</div>
- {/* Players Grid */}
- <div className="">
-          
- <div
+      {/* Player Cards */}
+      <motion.div
+        className="absolute top-[390px] left-[200px] grid grid-cols-4 gap-[60px]"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.4,
+            },
+          },
+          hidden: {},
+        }}
+      >
+       {champion.players.slice(0, 4).map((player) => (
 
- className="grid grid-cols-4 w-full h-full" style={{ maxWidth: 'calc(4 * 25%)' }}>
- <div  style={{
-
-background: `linear-gradient(135deg, ${tournament.primaryColor || '#000'}, ${tournament.secondaryColor || '#333'})`,
-
-
-}} className="w-full h-[20%] absolute top-[900px] z-10" >
-
-
-<div className='absolute top-[30px] left-[70px]'>
-<div className='bg-white w-[400px] h-[100px] skew-x-[20deg]'>
-<div className='bg-black w-[40%] h-full'>
-</div>
-
-</div>
-<div className='font-bebas font-[300] text-[3rem] absolute top-[20px] left-[30px]' >WWCD</div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[200px] text-black ' > 
-    <div className='flex items-center'>
-    
-    <img src="/chicken.png" alt="" className='w-[70px] h-[70px] mr-[10px] mb-[10px]'/> x {champion.wwcd || 0}</div>
-    </div>
-</div>
-<div className='absolute top-[30px] left-[530px]'>
-<div className='bg-white w-[400px] h-[100px] skew-x-[20deg]'>
-<div className='bg-black w-[40%] h-full'>
-</div>
-
-</div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[20px]' >PLACE</div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[200px] text-black ' >{champion.placePoints || 0} PTS </div>
-</div>
-<div className='absolute top-[30px] left-[1000px]'>
-<div className='bg-white w-[400px] h-[100px] skew-x-[20deg]'>
-<div className='bg-black w-[40%] h-full'>
-</div>
-
-</div>
-
-
-
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[30px]' >KILLS</div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[200px] text-black ' >{champion.totalKills || 0} PTS </div>
-</div>
-<div className='absolute top-[30px] left-[1450px]  '>
-<div className='bg-white w-[400px] h-[100px] skew-x-[20deg] '>
-<div className='bg-black w-[40%] h-full'>
-</div>
-
-</div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[30px]' >TOTAL</div>
-<div className='font-bebas font-[300] text-[4rem] absolute top-[10px] left-[200px] text-black ' >{champion.total || 0} PTS </div>
-
-</div>
-</div>
-  {champion.players.slice(0, 4).map((p) => (
-    <div key={p._id} className="flex flex-col items-center m-[-150px] relative top-[420px]">
-    <div 
-  
-    className='w-full absolute h-full top-[0px] '></div>
-      <img
-        src={
-          p.picUrl ||
-          'https://res.cloudinary.com/dqckienxj/image/upload/v1735718663/defult_chach_apsjhc_jydubc.png'
-        }
-        alt={p.playerName}
-        className="w-full h-full object-cover m-0 p-0"
-      />
-    </div>
-  ))}
-</div>
-
+          <motion.div
+         key={player._id}
+            className="flex flex-col items-center bg-[#1a1a1a94]   rounded-2xl shadow-lg w-[340px]"
+            variants={{
+              hidden: { opacity: 0, y: 100 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.6 }}
+          >
+            <img
+              src={player.picUrl || '/def_char.png'}
+              alt={player.playerName}
+              className="w-[620px] h-[420px] object-cover    top-[16px] "
+            />
+            <div
+              style={{
+          backgroundImage: `linear-gradient(to right, ${tournament.secondaryColor}, ${"#000000"})`,
+              }}
+              className="text-[44px] text-center w-[338px] font-[AGENCYB]"
+            >
+              {player.playerName}
             </div>
-     
+          
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   );
 };
 
 export default Champions;
+

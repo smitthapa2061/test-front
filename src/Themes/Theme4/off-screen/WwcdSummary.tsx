@@ -216,44 +216,95 @@ const WwcdSummary: React.FC<WwcdSummaryProps> = ({ tournament, round, match, mat
     );
   }
 
+  // Get top 4 players from the winning team
+  const topPlayers = winner?.players
+    .filter(player => player.picUrl) // Filter players with pictures
+    .sort((a, b) => (b.killNum || 0) - (a.killNum || 0)) // Sort by kills
+    .slice(0, 4); // Get top 4 players
+
   return (
-  <div className=' w-[1920px] h-[1080px]'>
-    <div 
-     style={{
-   backgroundImage: `linear-gradient(135deg, ${
-  tournament.secondaryColor || '#000'
-}, #000)`,
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  }}
-    className='text-white text-[10rem] font-[agencyb] absolute left-[500px] top-[100px]'>
-      <div>WINNER WINNER</div>
-      <div>CHICKEN DINNER</div>
-    </div>
-      <div
-     style={{
-     border: "2px solid",
-     borderImage: `linear-gradient(135deg, ${
-       tournament.primaryColor || "#000"
-     }, #000) 1`,
-   }}
-       className='bg-white w-[250px] h-[150px] absolute left-[840px] top-[660px] flex flex-col items-center justify-center'>
-        <img src={winner?.teamLogo ||  "/def_logo.png"} alt="" className='w-[150px] h-[100px] object-contain' />
-       </div>
+  <div className=' w-[1920px] h-[1080px] '>
     <div
-     key={winner?._id || winner?.teamId}
-      style={{
+     style={{
    backgroundImage: `linear-gradient(135deg, ${
-  tournament.primaryColor || '#000'
+ tournament.secondaryColor || '#000'
+}, #000)`,
+   WebkitBackgroundClip: 'text',
+   WebkitTextFillColor: 'transparent',
+ }}
+   className='text-white text-[10rem] font-[agencyb] absolute left-[500px] top-[0px]'>
+     <div>WINNER WINNER</div>
+     <div>CHICKEN DINNER</div>
+     
+   </div>
+ 
+     <div
+    style={{
+    border: "2px solid",
+    borderImage: `linear-gradient(135deg, ${
+      tournament.primaryColor || "#000"
+    }, #000) 1`,
+  }}
+      className='bg-white w-[350px] h-[130px] absolute left-[760px] top-[940px] flex '>
+        <div
+        
+        className='w-full h-[100%]'
+           style={{
+   backgroundImage: `linear-gradient(135deg, ${
+ tournament.secondaryColor || '#000'
+}, #000)`,
+  
+ }}>
+       <img 
+      
+       src={winner?.teamLogo ||  "/def_logo.png"} alt="" className='w-[150px] h-[100px] object-contain pl-[20px] ' />
+       </div>
+        <div className='text-black text-[79px] font-[agencyb]  text-center w-full'>{winner.teamTag}</div>
+      </div>
+        {topPlayers && topPlayers.length > 0 && (
+     <div className='flex justify-center items-end absolute top-[350px] w-full gap-[0px] left-[-300px]'>
+       {topPlayers.slice(0, 4).map((player, index) => (
+         <div key={player._id || index} className='flex flex-col items-center justify-center ml-[20px]'>
+           <img
+             src={player.picUrl || "/def_char.png"}
+             alt={player.playerName || "Player"}
+             className='w-[300px] h-[400px] object-cover rounded-lg shadow-lg bg-[#000000c5]'
+           />
+           <div 
+              style={{
+   backgroundImage: `linear-gradient(135deg, ${
+ tournament.secondaryColor || '#000'
+}, #000)`,
+ 
+ }}
+           
+           className='text-white text-[29px] font-[agencyb]  text-center w-full '>
+             {player.playerName.toUpperCase()}
+           </div>
+         </div>
+       ))}
+     </div>
+   )}
+   <div
+    key={winner?._id || winner?.teamId}
+     style={{
+  backgroundImage: `linear-gradient(135deg, ${
+ tournament.primaryColor || '#000'
 }, #000)`
 
-  }}
-    className='bg-black w-[900px] h-[130px] absolute left-[500px] top-[810px]'>
+ }}
+   className='bg-black w-[900px] h-[130px] absolute left-[500px] top-[810px]'>
 <div className="text-white text-[76px] font-[agencyb] flex items-center gap-[100px] w-full ml-[210px]">
-  <span>DAY {round?.day}</span>
-  <span>MATCH {match?.matchNo}</span>
+ 
+ <span>DAY {round?.day}</span>
+ <span>MATCH {match?.matchNo}</span>
+ 
 </div>
-    </div>
+
+   </div>
+   
+   {/* Player images - 4 players with proper gaps */}
+   
   </div>
   );
 };
